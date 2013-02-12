@@ -12,6 +12,10 @@
  * @date 2012-03-24
  */
 
+
+const float PI = 3.141568;
+const float E = 2.718281828;
+
 /* Copy the IDs of any new materials here. */
 const int UNSHADED_MATERIAL_ID = 1;
 const int LAMBERTIAN_MATERIAL_ID = 2;
@@ -121,16 +125,34 @@ vec3 shadeBlinnPhong(vec3 diffuse, vec3 specular, float exponent, vec3 position,
  */
 vec3 shadeCookTorrance(vec3 diffuse, vec3 specular, float m, float n, vec3 position, vec3 normal,
 	vec3 lightPosition, vec3 lightColor, vec3 lightAttenuation)
-{
-	vec3 viewDirection = -normalize(position);
-	vec3 lightDirection = normalize(lightPosition - position);
-	vec3 halfDirection = normalize(lightDirection + viewDirection);
-	vec3 finalColor = vec3(0.0);
+{	
+
+	//view direction
+	vec3 v = -normalize(position);
+	
+	//light direction
+	vec3 l = normalize(lightPosition - position);
+	
+	//half direction
+	vec3 h = normalize(l + v);	
 
 	// TODO PA1: Complete the Cook-Torrance shading function.
 	
+	/* float a = acos(dot(normalize(h),normalize(normal)));
 	
+	// facet distribution
+	float d = 1.0/(4.0*pow(m,2.0)*pow(cos(a),4.0))*pow(E,pow((-tan(a)/m),2.0));
 	
+	// masking/shadowing
+	float temp = 2.0*dot(normal,h)/(dot(v,h));
+	float g = min(temp*dot(normal,v),temp*dot(normal,l));
+	g = min(1.0,g);
+	
+	vec3 fs = (ps/PI)*(f*d*g)/(dot(normal,l)*dot(normal,v));
+	
+	vec3 finalColor = fs; */
+	
+	vec3 finalColor = vec3(0.0);
 	return finalColor;
 }
 
