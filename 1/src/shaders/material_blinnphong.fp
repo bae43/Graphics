@@ -55,9 +55,15 @@ void main()
 		vec4 texDiffuse = texture2D(DiffuseTexture, TexCoord);
 		DiffuseColor = DiffuseColor * texDiffuse.xyz;
 	}
+	
 	if(HasSpecularTexture){
 		vec4 texSpecular = texture2D(SpecularTexture, TexCoord);
 		SpecularColor = SpecularColor * texSpecular.xyz;
+	}
+	
+	if(HasExponentTexture){
+		vec4 texExponent = texture2D(ExponentTexture, TexCoord);
+		PhongExponent = texExponent.x;
 	}
 	
 	gl_FragData[0] = vec4(DiffuseColor, enc.x);
