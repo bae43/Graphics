@@ -1,7 +1,6 @@
 package cs5625.deferred.materials;
 
 import javax.media.opengl.GL2;
-import javax.media.opengl.GL2GL3;
 import javax.vecmath.Color3f;
 
 import cs5625.deferred.misc.OpenGLException;
@@ -121,30 +120,6 @@ public class BlinnPhongMaterial extends Material
 		getShaderProgram().bind(gl);
 		
 		// TODO PA1: Set shader uniforms and bind any textures.
-		gl.glUniform3f(mDiffuseUniformLocation, mDiffuseColor.x, mDiffuseColor.y, mDiffuseColor.z);
-		gl.glUniform3f(mSpecularUniformLocation, mSpecularColor.x, mSpecularColor.y, mSpecularColor.z);
-		gl.glUniform1f(mExponentUniformLocation, mPhongExponent);
-		
-		if(mDiffuseTexture != null){
-			gl.glUniform1f(mHasDiffuseTextureUniformLocation, 1.0f);
-			gl.glBindTexture(gl.GL_TEXTURE_2D, mDiffuseTexture.getHandle());
-		} else {
-			gl.glUniform1f(mHasDiffuseTextureUniformLocation, 0.0f);
-		}
-		
-		if(mSpecularTexture != null){
-			gl.glUniform1f(mHasSpecularTextureUniformLocation, 1.0f);
-			gl.glBindTexture(gl.GL_TEXTURE_2D, mSpecularTexture.getHandle());
-		} else {
-			gl.glUniform1f(mHasSpecularTextureUniformLocation, 0.0f);
-		}
-		
-		if(mExponentTexture != null){
-			gl.glUniform1f(mHasExponentTextureUniformLocation, 1.0f);
-			gl.glBindTexture(gl.GL_TEXTURE_2D, mExponentTexture.getHandle());
-		} else {
-			gl.glUniform1f(mHasExponentTextureUniformLocation, 0.0f);
-		}
 	}
 	
 	@Override

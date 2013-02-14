@@ -11,9 +11,6 @@
  * @author Asher Dunn (ad488), Sean Ryan (ser99), Ivo Boyadzhiev (iib2)
  * @date 2012-03-24
  */
- 
- const float M_E = 2.718281828459045;
- const float M_PI =  3.141568;
 
 /* Copy the IDs of any new materials here. */
 const int UNSHADED_MATERIAL_ID = 1;
@@ -100,6 +97,7 @@ vec3 shadeBlinnPhong(vec3 diffuse, vec3 specular, float exponent, vec3 position,
 	
 	float pow_ndoth = (ndotl > 0.0 && ndoth > 0.0 ? pow(ndoth, exponent) : 0.0);
 
+
 	float r = length(lightPosition - position);
 	float attenuation = 1.0 / dot(lightAttenuation, vec3(1.0, r, r * r));
 	
@@ -124,43 +122,14 @@ vec3 shadeBlinnPhong(vec3 diffuse, vec3 specular, float exponent, vec3 position,
 vec3 shadeCookTorrance(vec3 diffuse, vec3 specular, float m, float n, vec3 position, vec3 normal,
 	vec3 lightPosition, vec3 lightColor, vec3 lightAttenuation)
 {
-	//view direction
-	vec3 v = -normalize(position);
-	
-	//light direction
-	vec3 l = normalize(lightPosition - position);
-	
-	//half direction
-	vec3 h = normalize(l + v);	
+	vec3 viewDirection = -normalize(position);
+	vec3 lightDirection = normalize(lightPosition - position);
+	vec3 halfDirection = normalize(lightDirection + viewDirection);
+	vec3 finalColor = vec3(0.0);
 
 	// TODO PA1: Complete the Cook-Torrance shading function.
 	
-	float a = acos(dot(h,normalize(normal)));
 	
-	//fresnal equation
-	float theta1 = acos(dot(v,normal));
-	float theta2 = theta1;
-	float n1 = 1.0;
-	float n2 = 1.0;
-	
-	float fp = (n2 * cos(theta1)-n1*cos(theta2))/(n2 * cos(theta1)+n1*cos(theta2));
-	float fs = (n1 * cos(theta1)-n2*cos(theta2))/(n1 * cos(theta1)+n2*cos(theta2));
-	
-	float f = 1.0;//(fs + fp ) / 2.0;
-	
-	// facet distribution
-	float e_exp = pow((tan(a)/m),2.0);
-	float e_term = pow(M_E,e_exp);
-	float m_term = (4.0*pow(m,2.0)*pow(cos(a),4.0));
-	float d = e_term/m_term;
-	
-	// masking/shadowing
-	float temp = 2.0*dot(normal,h)/(dot(v,h));
-	float g = min(temp*dot(normal,v),temp*dot(normal,l));
-	g = min(1.0,g);
-	
-	vec3 ps = vec3(1.0);
-	vec3 finalColor = (ps/M_PI)*(f*d*g);///(dot(normal,l)*dot(normal,v));
 	
 	return finalColor;
 }
@@ -188,9 +157,12 @@ vec3 shadeAnisotropicWard(vec3 diffuse, vec3 specular, float alphaX, float alpha
 	vec3 viewDirection = -normalize(position);
 	vec3 lightDirection = normalize(lightPosition - position);
 	vec3 halfDirection = normalize(lightDirection + viewDirection);
-	vec3 finalColor = vec3(0.0,1.0,1.0);
+	vec3 finalColor = vec3(0.0);
 
 	// TODO PA1: Complete the Anisotropic Ward shading function.
+	
+	
+	
 	
 	return finalColor;
 }
@@ -215,29 +187,14 @@ vec3 shadeIsotropicWard(vec3 diffuse, vec3 specular, float alpha, vec3 position,
 	vec3 viewDirection = -normalize(position);
 	vec3 lightDirection = normalize(lightPosition - position);
 	vec3 halfDirection = normalize(lightDirection + viewDirection);
+	vec3 finalColor = vec3(0.0);
 
 	// TODO PA1: Complete the Isotropic Ward shading function.
-	float ndotv = dot(normal,  viewDirection);
-	float ndoth = dot(normal,  halfDirection);
-	float ndotl = dot(normal, lightDirection);
 	
-	float theta = acos(ndoth);
-	float tan_theta = tan(theta);
 	
-	float alpha_sqr = pow(alpha, 2.0);
-	float exponent = pow(M_E, -1.0 * (pow(tan_theta, 2.0) / alpha_sqr));
 	
-	float r = length(lightPosition - position);
-	float attenuation = 1.0 / dot(lightAttenuation, vec3(1.0, r, r * r));
-	
-	float recip = ((ndotl > 0.0) && (ndotv > 0.0)) ? (1.0 / sqrt(ndotl * ndotv)) : 0.0; //<what to do here?
-	
-	float spec_term = recip * exponent / (4.0 * M_PI * alpha_sqr);
-	
-	vec3 finalColor = lightColor * attenuation * (ndotl * diffuse + spec_term * specular);
 	
 	return finalColor;
-	//return vec3(0.0,0.0,1.0);
 }
 
 
@@ -252,75 +209,26 @@ void main()
 	                                   texture2DRect(PositionBuffer, gl_FragCoord.xy).a));
 	
 	/* Initialize fragment to black. */
-	gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+	gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
 
-	// /* Branch on material ID and shade as appropriate. */
-	// int materialID = int(materialParams1.x);
+	/* Branch on material ID and shade as appropriate. */
+	int materialID = int(materialParams1.x);
 
-	// if (materialID == 0)
-	// {
-	// 	/* Must be a fragment with no geometry, so set to sky (background) color. */
-	// 	gl_FragColor = vec4(SkyColor, 1.0);
-	// }
-
-	
+	if (materialID == 0)
+	{
+		/* Must be a fragment with no geometry, so set to sky (background) color. */
+		gl_FragColor = vec4(SkyColor, 1.0);
+	}
+	else if (materialID == UNSHADED_MATERIAL_ID)
+	{
+		/* Unshaded material is just a constant color. */
+		gl_FragColor.rgb = diffuse;
+	}
 	// TODO PA1: Add logic to handle all other material IDs. Remember to loop over all NumLights.
-	else
-	if(true)//materialID == BLINNPHONG_MATERIAL_ID)
-	{
-		vec3 result = vec3(0.0);
-		for(int i = 0; i < NumLights; i++){
-			vec3 shade = shadeBlinnPhong(diffuse, materialParams2.rgb, materialParams2.a, position, normal, LightPositions[i], LightColors[i], LightAttenuations[i]);
-			result = result + shade;
-		}
-		gl_FragColor.rgb = result;
-	}
-	else
-	if(materialID == LAMBERTIAN_MATERIAL_ID)
-	{
-		vec3 result = vec3(0.0);
-		for(int i = 0; i < NumLights; i++){
-			vec3 shade = shadeLambertian(diffuse, position, normal, LightPositions[i], LightColors[i], LightAttenuations[i]);
-			result = result + shade;
-		}
-		gl_FragColor.rgb = result;
-		gl_FragColor.rgb = vec3(0.0,0.0,1.0);
-	}
-	else if(materialID == UNSHADED_MATERIAL_ID)//COOKTORRANCE_MATERIAL_ID)
-	{
-		vec3 result = vec3(0.0);
-		for(int i = 0; i < NumLights; i++){
-			vec3 shade = shadeCookTorrance(diffuse,  materialParams2.rgb, /*m*/ 0.0, /*n*/ 0.0, position, normal,
-			LightPositions[i], LightColors[i], LightAttenuations[i]);
-			result = result + shade;
-		}
-		gl_FragColor.rgb = result;
-		//gl_FragColor.rgb = vec3(0.0,0.0,1.0);
-		
-	}
-	
-	else
-	if(materialID == ISOTROPIC_WARD_MATERIAL_ID)
-	{
-		vec3 result = vec3(0.0,0.0,0.0);
-		for(int i = 0; i < NumLights; i++){
-			vec3 shade = shadeIsotropicWard(diffuse, materialParams2.rgb, materialParams2.a, position,
-				normal, LightPositions[i], LightColors[i], LightAttenuations[i]);
-			result = result + shade;
-		}
-		gl_FragColor.rgb = result;
-		
-	}
-		else if (materialID == UNSHADED_MATERIAL_ID)
-	{
-	    //Unshaded material is just a constant color. 
-		gl_FragColor.rgb = vec3(.5,0.0,1.0);//diffuse;
-	}
+
 	else
 	{
 		/* Unknown material, so just use the diffuse color. */
 		gl_FragColor.rgb = diffuse;
-		//gl_FragColor.rgb = vec3(1.0,.5,.5);
 	}
-	
 }

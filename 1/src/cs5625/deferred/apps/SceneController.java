@@ -11,6 +11,8 @@ import java.awt.event.MouseWheelListener;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
 
+import com.sun.org.apache.xml.internal.security.algorithms.Algorithm;
+
 import cs5625.deferred.rendering.Camera;
 import cs5625.deferred.rendering.Renderer;
 import cs5625.deferred.scenegraph.SceneObject;
@@ -68,9 +70,9 @@ public abstract class SceneController implements MouseListener, MouseMotionListe
 		 * control (e.g. game-style input), make a new subclass!
 		 */
 
-		//globalController = new DefaultSceneController();
+		globalController = new DefaultSceneController();
 		//globalController = new ManyLightsSceneController();		
-		globalController = new MaterialTestSceneController();
+		//globalController = new MaterialTestSceneController();
 	}
 	
 	/*
