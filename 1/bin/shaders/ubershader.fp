@@ -144,13 +144,14 @@ vec3 shadeCookTorrance(vec3 diffuse, vec3 specular, float m, float n, vec3 posit
 	float ndotl = max(0.0, dot(normal, l));
 	
 	//fresnal equation
-	float f = getSchlickApprox(h,n);
+	float theta = acos(ndotl);
+	float f = getSchlickApprox(theta,n);
 	
 	// facet distribution
-	float a = acos(dot(normalize(normal),h));
+	float a = acos(dot(normal,h));
 	float e_exp = -pow((tan(a)/m),2.0);
 	float e_term = exp(e_exp);
-	float m_term = (4.0*pow(m,2.0)*pow(cos(a),4.0));
+	float m_term = 4.0*m*m*pow(cos(a),4.0);
 	float d = e_term/m_term;
 	
 	// masking/shadowing
@@ -158,20 +159,24 @@ vec3 shadeCookTorrance(vec3 diffuse, vec3 specular, float m, float n, vec3 posit
 	float g = min(temp*ndotv,temp*ndotl);
 	g = min(1.0,g);
 	
-	vec3 spec = max(0.0,(specular/M_PI)*(f*d*g)/(ndotl*ndotv));
+
+	
+	vec3 spec = (specular/M_PI)*(f*d*g)/(ndotl*ndotv);
+	
+	if(spec.x > 0){
+		return vec3(1.0,0.0,0.0);
+	} else {
+		return vec3(0.0,1.0,0.0);
+	}
+	
 	
 	float r = length(lightPosition - position);
 	float attenuation = 1.0 / dot(lightAttenuation, vec3(1.0, r, r * r));
 	
 	vec3 finalColor = lightColor * attenuation * ndotl * (diffuse + spec);
 	
-	if (f >= 0.0){
-		//return vec3(0.0,f,0.0);
-	}else{
-	//	return vec3(1.0,0.0,0.0);
-	}
-	
 	return finalColor;
+	
 }
 
 /**
