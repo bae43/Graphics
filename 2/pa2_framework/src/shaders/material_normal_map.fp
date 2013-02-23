@@ -50,5 +50,19 @@ void main()
 	// TODO PA2: Store diffuse color, position, encoded normal, material ID, and all other useful data in the g-buffer.
 	//			 Use the normal map and tangent vectors to get a new normal.
 	
-	gl_FragData[0] = gl_FragData[1] = gl_FragData[2] = gl_FragData[3] = vec4(1.0);	
+	// Sampling The Texture And Passing It To The Frame Buffer
+    vec3 dif = texture2D(DiffuseTexture,TexCoord).xyz;
+    vec3 spec = texture2D(SpecularTexture,TexCoord).xyz;
+    vec3 ex = texture2D(ExponentTexture,TexCoord).xyz;
+    vec3 nrm = texture2D(NormalTexture,TexCoord).xyz;
+
+
+	vec3 l = normalize(gl_LightSource[0].position.xyz - EyespacePosition.xyz);
+	vec3 vn = normalize(gl_ModelViewMatrix * vec4(nrm,0.0)).xyz;
+	
+	vec3 ld = dif * max(dot(vn, l),0.0);
+	
+   	gl_FragColor = vec4(.5);// vec4 (ld * dif,1.0);
+
+	//gl_FragData[0] = gl_FragData[1] = gl_FragData[2] = gl_FragData[3] = gl_FragColor;	
 }

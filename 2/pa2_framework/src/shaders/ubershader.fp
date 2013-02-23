@@ -11,6 +11,8 @@
  * @author Asher Dunn (ad488), Ivaylo Boyadzhiev (iib2)
  * @date 2012-03-24
  */
+ 
+  #define M_PI 3.141568
 
 /* Copy the IDs of any new materials here. */
 const int UNSHADED_MATERIAL_ID = 1;
@@ -193,6 +195,11 @@ vec3 shadeBlinnPhong(vec3 diffuse, vec3 specular, float exponent, vec3 position,
 	return lightColor * attenuation * (diffuse * ndotl + specular * pow_ndoth);
 }
 
+float getSchlickApprox(float theta, float N){
+		float t0 = pow((N-1.0)/(N+1.0),2.0);
+		return (t0 + (1.0-t0)*(pow(1.0-cos(theta),5.0)));
+}
+
 /**
  * Performs Cook-Torrance shading on the passed fragment data (color, normal, etc.) for a single light.
  * 
@@ -252,7 +259,7 @@ vec3 shadeCookTorrance(vec3 diffuse, vec3 specular, float m, float n, vec3 posit
 	
 	vec3 spec = (specular/M_PI)*(f*d*g)/(ndotl*ndotv);
 	
-	if(spec.x > 0){
+	if(spec.x > 0.0){
 		return vec3(1.0,0.0,0.0);
 	} else {
 		return vec3(0.0,1.0,0.0);
@@ -262,15 +269,15 @@ vec3 shadeCookTorrance(vec3 diffuse, vec3 specular, float m, float n, vec3 posit
 	float r = length(lightPosition - position);
 	float attenuation = 1.0 / dot(lightAttenuation, vec3(1.0, r, r * r));
 	
-	vec3 finalColor = lightColor * attenuation * ndotl * (diffuse + spec);
+	finalColor = lightColor * attenuation * ndotl * (diffuse + spec);
 	
 	return finalColor;
 	
 	
 	// TODO PA2: Update this function to threshold its n.l and n.h values if toon shading is enabled.	
 	
-	float r = length(lightPosition - position);
-	float attenuation = 1.0 / dot(lightAttenuation, vec3(1.0, r, r * r));
+	r = length(lightPosition - position);
+	attenuation = 1.0 / dot(lightAttenuation, vec3(1.0, r, r * r));
 	
 	return attenuation * finalColor;
 }
@@ -323,10 +330,10 @@ vec3 shadeAnisotropicWard(vec3 diffuse, vec3 specular, float alphaX, float alpha
 	
 	// TODO PA2: Update this function to threshold its n.l and n.h values if toon shading is enabled.	
 	
-	float r = length(lightPosition - position);
-	float attenuation = 1.0 / dot(lightAttenuation, vec3(1.0, r, r * r));
+	r = length(lightPosition - position);
+	attenuation = 1.0 / dot(lightAttenuation, vec3(1.0, r, r * r));
 	
-	return attenuation * finalColor;
+	attenuation * finalColor;
 }
 
 /**
@@ -375,8 +382,8 @@ vec3 shadeIsotropicWard(vec3 diffuse, vec3 specular, float alpha, vec3 position,
 	
 	// TODO PA2: Update this function to threshold its n.l and n.h values if toon shading is enabled.	
 	
-	float r = length(lightPosition - position);
-	float attenuation = 1.0 / dot(lightAttenuation, vec3(1.0, r, r * r));
+	r = length(lightPosition - position);
+	attenuation = 1.0 / dot(lightAttenuation, vec3(1.0, r, r * r));
 	
 	return attenuation * finalColor;
 }
@@ -489,13 +496,7 @@ void main()
 		}
 		gl_FragColor.rgb = result;
 	}
-	else
-	{
-		/* Unknown material, so just use the diffuse color. */
-		gl_FragColor.rgb = diffuse;
-	}
-	
-	
+
 	
 	// TODO PA2: (1) Add logic to handle the new reflection material; (2) Extend your Cook-Torrance
 	// model to support perfect mirror reflection from an environment map, given by its index. 	
