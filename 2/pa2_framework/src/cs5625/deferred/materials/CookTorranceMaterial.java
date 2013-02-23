@@ -158,9 +158,40 @@ public class CookTorranceMaterial extends Material
 		/* Bind shader and any textures, and update uniforms. */
 		getShaderProgram().bind(gl);
 		
-		// TODO PA1: Set shader uniforms and bind any textures.	
+		// DONE PA1: Set shader uniforms and bind any textures.
 		
-		// TODO PA2: Set the cube map index uniform.		
+		gl.glUniform3f(mDiffuseUniformLocation, mDiffuseColor.x, mDiffuseColor.y, mDiffuseColor.z);
+		gl.glUniform3f(mSpecularUniformLocation, mSpecularColor.x, mSpecularColor.y, mSpecularColor.z);
+		gl.glUniform1f(mMUniformLocation,mMVal);
+		gl.glUniform1f(mNUniformLocation,mNVal);
+		
+		if(mDiffuseTexture != null){
+			gl.glUniform1f(mHasDiffuseTextureUniformLocation, 1.0f);
+			mDiffuseTexture.bind(gl, 0);
+		} else {
+			gl.glUniform1f(mHasDiffuseTextureUniformLocation, 0.0f);
+		}
+		
+		if(mSpecularTexture != null){
+			gl.glUniform1f(mHasSpecularTextureUniformLocation, 1.0f);
+			mSpecularTexture.bind(gl, 1);
+		} else {
+			gl.glUniform1f(mHasSpecularTextureUniformLocation, 0.0f);
+		}
+		
+		if(mMTexture != null){
+			gl.glUniform1f(mHasMTextureUniformLocation, 1.0f);
+			mMTexture.bind(gl, 2);
+		} else {
+			gl.glUniform1f(mHasMTextureUniformLocation, 0.0f);
+		}
+		
+		if(mNTexture != null){
+			gl.glUniform1f(mHasNTextureUniformLocation, 1.0f);
+			mNTexture.bind(gl, 3);
+		} else {
+			gl.glUniform1f(mHasNTextureUniformLocation, 0.0f);
+		}
 	}
 	
 	@Override
@@ -194,6 +225,22 @@ public class CookTorranceMaterial extends Material
 		/* Unbind everything bound in bind(). */
 		getShaderProgram().unbind(gl);
 		
-		// TODO PA1: Unbind any used textures.		
+		// DONE PA1: Unbind any used textures
+		
+		if(mDiffuseTexture != null){
+			mDiffuseTexture.unbind(gl);
+		}
+		
+		if(mSpecularTexture != null){
+			mSpecularTexture.unbind(gl);
+		}
+		
+		if(mMTexture != null){
+			mMTexture.unbind(gl);
+		}
+		
+		if(mNTexture != null){
+			mNTexture.unbind(gl);
+		}	
 	}
 }

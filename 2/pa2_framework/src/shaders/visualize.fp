@@ -29,7 +29,7 @@ uniform int VisMode;
 vec3 decode(vec2 v)
 {
 	vec3 n;
-	n.z = 2.0 * dot(v.xy, v.xy) - 1.0;
+	n.z = 2.0 * length(v.xy) - 1.0;
 	n.xy = normalize(v.xy) * sqrt(1.0 - n.z*n.z);
 	return n;
 }
@@ -42,9 +42,25 @@ void main()
 	vec4 materialParams2 = texture2DRect(MaterialParams2Buffer, gl_FragCoord.xy);
 	int materialID = int(materialParams1.x);
 	
-	/* TODO PA1: Output a color to visualize the g-buffer data at the given pixel.
+	/* DONE PA1: Output a color to visualize the g-buffer data at the given pixel.
 	 *           You should visualize the data indicated by VisMode.
 	 */
-	
-	gl_FragColor = vec4(0.0);
+	 
+	 vec3 tangent = decode(vec2(texture2DRect(MaterialParams1Buffer, gl_FragCoord.xy).a,
+	 							texture2DRect(MaterialParams2Buffer, gl_FragCoord.xy).a));
+	 vec3 bitangent = cross(normal, tangent);
+	 
+	 if(materialID < 0) {
+	 	bitangent = bitangent * -1.0;
+	 }
+	 
+	if(VisMode == NORMALS_MODE){
+		gl_FragColor = vec4(normal, 1.0);
+	} else
+	if(VisMode == TANGENTS_MODE){
+		gl_FragColor = vec4(tangent, 1.0);
+	} else
+	if(VisMode == BITANGENTS_MODE){
+		gl_FragColor = vec4(bitangent, 1.0);
+	}
 }

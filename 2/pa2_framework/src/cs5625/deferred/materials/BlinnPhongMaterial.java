@@ -119,7 +119,31 @@ public class BlinnPhongMaterial extends Material
 		/* Bind shader and any textures, and update uniforms. */
 		getShaderProgram().bind(gl);
 		
-		// TODO PA1: Set shader uniforms and bind any textures.		
+		// DONE PA1 (D): Set shader uniforms and bind any textures.
+		gl.glUniform3f(mDiffuseUniformLocation, mDiffuseColor.x, mDiffuseColor.y, mDiffuseColor.z);
+		gl.glUniform3f(mSpecularUniformLocation, mSpecularColor.x, mSpecularColor.y, mSpecularColor.z);
+		gl.glUniform1f(mExponentUniformLocation, mPhongExponent);
+		
+		if(mDiffuseTexture != null){
+			gl.glUniform1f(mHasDiffuseTextureUniformLocation, 1.0f);
+			mDiffuseTexture.bind(gl, 0);
+		} else {
+			gl.glUniform1f(mHasDiffuseTextureUniformLocation, 0.0f);
+		}
+		
+		if(mSpecularTexture != null){
+			gl.glUniform1f(mHasSpecularTextureUniformLocation, 1.0f);
+			mSpecularTexture.bind(gl, 1);
+		} else {
+			gl.glUniform1f(mHasSpecularTextureUniformLocation, 0.0f);
+		}
+		
+		if(mExponentTexture != null){
+			gl.glUniform1f(mHasExponentTextureUniformLocation, 1.0f);
+			mExponentTexture.bind(gl, 2);
+		} else {
+			gl.glUniform1f(mHasExponentTextureUniformLocation, 0.0f);
+		}
 	}
 	
 	@Override
@@ -148,6 +172,18 @@ public class BlinnPhongMaterial extends Material
 		/* Unbind everything bound in bind(). */
 		getShaderProgram().unbind(gl);
 		
-		// TODO PA1: Unbind any used textures.		
+		// DONE PA1 (D): Unbind any used textures.
+		
+		if(mDiffuseTexture != null){
+			mDiffuseTexture.unbind(gl);
+		}
+		
+		if(mSpecularTexture != null){
+			mSpecularTexture.unbind(gl);
+		}
+		
+		if(mExponentTexture != null){
+			mExponentTexture.unbind(gl);
+		}
 	}
 }

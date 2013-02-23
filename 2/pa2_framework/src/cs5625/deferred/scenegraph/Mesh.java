@@ -91,8 +91,16 @@ public abstract class Mesh implements OpenGLResourceObject
 		q1.sub(p1, p0);
 		q2.sub(p2, p0);
 
-		/* TODO PA1: Construct the Q matrix */    			
-		GMatrix matQ = new GMatrix(2, 3);		
+		/* DONE PA1 (D): Construct the Q matrix */
+		GMatrix matQ = new GMatrix(2, 3);
+		
+		matQ.setElement(0, 0, q1.x);
+		matQ.setElement(0, 1, q1.y);
+		matQ.setElement(0, 2, q1.z);
+		
+		matQ.setElement(1, 0, q2.x);
+		matQ.setElement(1, 1, q2.y);
+		matQ.setElement(1, 2, q2.z);	
 
 		/* Get texture coordinates relative to the first vertex. */
         float s1 = u2 - u1;
@@ -106,12 +114,25 @@ public abstract class Mesh implements OpenGLResourceObject
         	return;
         }
 
-		/* TODO PA1: Construct the inverse (s,t) matrix, and compute 
-		 * tangent and bitangent vectors as explained on Lengyel's site. */       
+		/* DONE PA1 (D): Construct the inverse (s,t) matrix, and compute 
+		 * tangent and bitangent vectors as explained on Lengyel's site. */ 
+        GMatrix matInv = new GMatrix(2, 2);
+        
+        float det = 1.0f / (s1 * t2 - s2 * t1);
+        
+        matInv.setElement(0, 0, t2 * det);
+        matInv.setElement(0, 1, -t1 * det);
+        matInv.setElement(1, 0, -s2 * det);
+        matInv.setElement(1, 1, s1 * det);
+        
+        GMatrix matTB = new GMatrix(2, 3);
+        matTB.mul(matInv, matQ);
+        
 		GVector tangent = new GVector(3);
 		GVector bi_tangent = new GVector(3);
 		
-		
+		matTB.getRow(0, tangent);
+		matTB.getRow(1, bi_tangent);
 		
 		/* Accumulate into temporary arrays. */
 		tan1[3 * i1 + 0] += tangent.getElement(0);
@@ -179,16 +200,63 @@ public abstract class Mesh implements OpenGLResourceObject
 			tangent.normalize();
 			bitangent.normalize();
 			
-			/* TODO PA1: Orthogonalize and normalize (aka. create orthonormal basis), based on
+			
+			/* DONE PA1 (D): Orthogonalize and normalize (aka. create orthonormal basis), based on
 			 * the current normal and tangent vectors, as explained on Lengyel's site. */   
 			Vector3f tangent_orth = new Vector3f();
 			
+			float ndott = normal.dot(tangent);
+			Vector3f norm_scale = new Vector3f(normal);
+			norm_scale.scale(ndott);
 			
+			tangent_orth.sub(tangent, norm_scale);
 			
-			/* TODO PA1: Compute handedness of bitangent, as explained on Lengyel's site. */						
-			float handedness = 1.0f;
+			/* DONE PA1 (D): Compute handedness of bitangent, as explained on Lengyel's site. */			
 			
+			Vector3f bitangent_orth = new Vector3f();
 			
+			float t_odotb = tangent_orth.dot(bitangent);
+			float t_sqr = tangent_orth.lengthSquared();
+			
+			Vector3f tan_scale = new Vector3f(tangent_orth);
+			tan_scale.scale(t_odotb);
+			tan_scale.scale(1 / t_sqr);
+
+			float ndotb = normal.dot(bitangent);
+			
+			norm_scale.set(normal);
+			norm_scale.scale(ndotb);
+			
+			bitangent_orth.sub(bitangent, norm_scale);
+			bitangent_orth.sub(bitangent_orth, tan_scale);
+			
+			tangent_orth.normalize();
+			bitangent_orth.normalize();
+			
+			/*GMatrix matTBN = new GMatrix(3, 3);
+			
+			matTBN.setElement(0, 0, tangent_orth.x);
+			matTBN.setElement(0, 1, tangent_orth.y);
+			matTBN.setElement(0, 2, tangent_orth.z);
+
+			matTBN.setElement(1, 0, bitangent_orth.x);
+			matTBN.setElement(1, 1, bitangent_orth.y);
+			matTBN.setElement(1, 2, bitangent_orth.z);
+
+			matTBN.setElement(2, 0, normal.x);
+			matTBN.setElement(2, 1, normal.y);
+			matTBN.setElement(2, 2, normal.z);*/
+			
+			//3x3 Determinant = aei + bfg + cdh - ceg - bdi - afh
+			float handedness
+						= tangent_orth.x * bitangent_orth.y * normal.z +
+						  tangent_orth.y * bitangent_orth.z * normal.x +
+						  tangent_orth.z * bitangent_orth.x * normal.y -
+						  tangent_orth.z * bitangent_orth.y * normal.x -
+						  tangent_orth.y * bitangent_orth.x * normal.z -
+						  tangent_orth.x * bitangent_orth.z * normal.y;
+			
+			handedness = handedness / Math.abs(handedness);
 			
 			/* Store the normalized result in the first 3 components, and the handedness in the last one */		
 			result.put(4 * vIndex + 0, tangent_orth.x);

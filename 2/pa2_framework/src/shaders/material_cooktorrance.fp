@@ -32,9 +32,6 @@ uniform bool HasSpecularTexture;
 uniform bool HasMTexture;
 uniform bool HasNTexture;
 
-/* Environment cube map index (0 means not to use environment lighting) */
-uniform int CubeMapIndex;
-
 /* Fragment position and normal, and texcoord, from vertex shader. */
 varying vec3 EyespacePosition;
 varying vec3 EyespaceNormal;
@@ -48,8 +45,47 @@ vec2 encode(vec3 n)
 
 void main()
 {
-	// TODO PA1: Store diffuse color, position, encoded normal, material ID, and all other useful data in the g-buffer.
-	// TODO PA2: Store the cube map index in the g-buffer.
+	// DONE PA1: Store diffuse color, position, encoded normal, material ID, and all other useful data in the g-buffer.
+	gl_FragData[0] = gl_FragData[1] = gl_FragData[2] = gl_FragData[3] = vec4(1.0);
 	
-	gl_FragData[0] = gl_FragData[1] = gl_FragData[2] = gl_FragData[3] = vec4(1.0);		
+	////////////////////////////////////////////////////////////////////////////
+	
+	/* Encode the eyespace normal. */
+	vec2 enc = encode(normalize(EyespaceNormal));
+	
+	/* Store diffuse, position, encoded normal, and the material ID into the gbuffer. Position
+	 * and normal aren't used for shading, but they might be required by a post-processing effect,
+	 * so we still have to write them out. */
+	 
+	 vec3 DColor = DiffuseColor;
+	 vec3 SColor = SpecularColor;
+
+	if(HasDiffuseTexture){
+		vec4 texDiffuse = texture2D(DiffuseTexture, TexCoord);
+		DColor = DiffuseColor * texDiffuse.xyz;
+	}
+	
+	if(HasSpecularTexture){
+		vec4 texSpecular = texture2D(SpecularTexture, TexCoord);
+		SColor = SpecularColor * texSpecular.xyz;
+	}
+	
+	float M2 = 0.0;
+	if(HasMTexture){
+	
+		vec4 texExponent = texture2D(MTexture, TexCoord);
+		M2 = 255.0 * texExponent.x;
+	}
+	
+	float N2 = 0.0;
+	if(HasNTexture){
+		vec4 texExponent = texture2D(NTexture, TexCoord);
+		N2 = 255.0 * texExponent.x;
+	}
+	
+	gl_FragData[0] = vec4(DColor, enc.x);
+	gl_FragData[1] = vec4(EyespacePosition, enc.y);	
+	gl_FragData[2] = vec4(float(COOKTORRANCE_MATERIAL_ID), M2, N2, 0.0);
+	gl_FragData[3] = vec4(SColor, 0.0);
+	
 }

@@ -49,7 +49,7 @@ vec2 encode(vec3 n)
 
 void main()
 {
-	// TODO PA1: Store diffuse color, position, encoded normal, material ID, and all other useful data in the g-buffer.
+	// DONE PA1: Store diffuse color, position, encoded normal, material ID, and all other useful data in the g-buffer.
 	 
 	 vec3 DColor = DiffuseColor;
 	 vec3 SColor = SpecularColor;

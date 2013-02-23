@@ -35,7 +35,22 @@ vec2 encode(vec3 n)
 
 void main()
 {
-	// TODO PA1: Store diffuse color, position, encoded normal, material ID, and all other useful data in the g-buffer.
+	// DONE PA1: Store diffuse color, position, encoded normal, material ID, and all other useful data in the g-buffer.
 	
-	gl_FragData[0] = gl_FragData[1] = gl_FragData[2] = gl_FragData[3] = vec4(1.0);	
+	/* Encode the eyespace normal. */
+	vec2 enc = encode(normalize(EyespaceNormal));
+	
+	/* Store diffuse, position, encoded normal, and the material ID into the gbuffer. Position
+	 * and normal aren't used for shading, but they might be required by a post-processing effect,
+	 * so we still have to write them out. */
+	 
+	vec4 tex = vec4(0.0);
+	if(HasDiffuseTexture){
+		tex = texture2D(DiffuseTexture, TexCoord);
+	}
+	
+	gl_FragData[0] = vec4(DiffuseColor * tex.xyz, enc.x);
+	gl_FragData[1] = vec4(EyespacePosition, enc.y);
+	gl_FragData[2] = vec4(float(LAMBERTIAN_MATERIAL_ID), 0.0, 0.0, 0.0);
+	gl_FragData[3] = vec4(0.0);
 }

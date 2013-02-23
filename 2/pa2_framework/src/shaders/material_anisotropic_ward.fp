@@ -49,7 +49,59 @@ vec2 encode(vec3 n)
 
 void main()
 {
-	// TODO PA1: Store diffuse color, position, encoded normal, material ID, and all other useful data in the g-buffer.
+	// DONE PA1: Store diffuse color, position, encoded normal, material ID, and all other useful data in the g-buffer.
+	 
+	 vec3 DColor = DiffuseColor;
+	 vec3 SColor = SpecularColor;
+	 float AX = AlphaX;
+	 float AY = AlphaY;
 	
-	gl_FragData[0] = gl_FragData[1] = gl_FragData[2] = gl_FragData[3] = vec4(1.0);	
+	if(HasDiffuseTexture){
+		vec4 texDiffuse = texture2D(DiffuseTexture, TexCoord);
+		DColor = DiffuseColor * texDiffuse.rgb;
+	}
+	
+	if(HasSpecularTexture){
+		vec4 texSpecular = texture2D(SpecularTexture, TexCoord);
+		SColor = SpecularColor * texSpecular.xyz;
+	}
+	
+	if(HasAlphaXTexture){
+		vec4 texAlphaX = texture2D(AlphaXTexture, TexCoord);
+		AX = texAlphaX.x;
+	}
+	
+	if(HasAlphaYTexture){
+		vec4 texAlphaY = texture2D(AlphaYTexture, TexCoord);
+		AY = texAlphaY.x;
+	}
+	
+	/* Store:
+	 *	Diffuse			3
+	 *	Position		3
+	 *	Specular		3
+	 *	Material_ID		1
+	 *		& Bitangent Sign
+	 *	ENC Normal		2 <= (3)
+	 *	ENC Tangent		2 <= (3)
+	 *	AlphaX			1
+	 *	AlphaY			1
+	 					= 16
+	 */
+	 
+	 /* Encode. */
+	vec2 enc_N = encode(normalize(EyespaceNormal));
+	vec2 enc_T = encode(normalize(EyespaceTangent));
+	
+	vec3 Bi_Cross = cross(normalize(EyespaceNormal), normalize(EyespaceTangent));
+	
+	float ID = float(ANISOTROPIC_WARD_MATERIAL_ID);
+	if(dot(Bi_Cross, EyespaceBiTangent) < 0){
+		ID = -1.0 * ID;
+	}
+	
+	gl_FragData[0] = vec4(DColor, enc_N.x);
+	gl_FragData[1] = vec4(EyespacePosition, enc_N.y);
+	gl_FragData[2] = vec4(ID, AX, AY, enc_T.x);
+	gl_FragData[3] = vec4(SColor, enc_T.y);
 }

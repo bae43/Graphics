@@ -137,7 +137,7 @@ vec3 shadeCookTorrance(vec3 diffuse, vec3 specular, float m, float n, vec3 posit
 	//half direction
 	vec3 h = normalize(l + v);	
 
-	// TODO PA1: Complete the Cook-Torrance shading function.
+	// DONE PA1: Complete the Cook-Torrance shading function.
 	
 	float ndotv = max(0.0, dot(normal,  v));
 	float ndoth = max(0.0, dot(normal,  h));
@@ -205,7 +205,7 @@ vec3 shadeAnisotropicWard(vec3 diffuse, vec3 specular, float alphaX, float alpha
 	
 	vec3 finalColor = vec3(0.0);
 
-	// TODO PA1: Complete the Anisotropic Ward shading function.
+	// DONE PA1: Complete the Anisotropic Ward shading function.
 	float ndotv = max(0.0, dot(normal,  viewDirection));
 	float ndoth = max(0.0, dot(normal,  halfDirection));
 	float ndotl = max(0.0, dot(normal, lightDirection));
@@ -248,7 +248,7 @@ vec3 shadeIsotropicWard(vec3 diffuse, vec3 specular, float alpha, vec3 position,
 	
 	vec3 finalColor = vec3(0.0);
 
-	// TODO PA1: Complete the Isotropic Ward shading function.
+	// DONE PA1: Complete the Isotropic Ward shading function.
 	float ndotv = max(0.0, dot(normal,  viewDirection));
 	float ndoth = max(0.0, dot(normal,  halfDirection));
 	float ndotl = max(0.0, dot(normal, lightDirection));
@@ -297,7 +297,7 @@ void main()
 		gl_FragColor.rgb = diffuse;
 	}
 	
-	// TODO PA1: Add logic to handle all other material IDs. Remember to loop over all NumLights.
+	// DONE PA1: Add logic to handle all other material IDs. Remember to loop over all NumLights.
 	else
 	if(materialID == BLINNPHONG_MATERIAL_ID)
 	{

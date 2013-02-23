@@ -157,7 +157,39 @@ public class AnisotropicWardMaterial extends Material
 		/* Bind shader and any textures, and update uniforms. */
 		getShaderProgram().bind(gl);
 		
-		// TODO PA1: Set shader uniforms and bind any textures.		
+		// DONE PA1: Set shader uniforms and bind any textures.
+		gl.glUniform3f(mDiffuseUniformLocation, mDiffuseColor.x, mDiffuseColor.y, mDiffuseColor.z);
+		gl.glUniform3f(mSpecularUniformLocation, mSpecularColor.x, mSpecularColor.y, mSpecularColor.z);
+		gl.glUniform1f(mAlphaXUniformLocation, mAlphaX);
+		gl.glUniform1f(mAlphaYUniformLocation, mAlphaY);
+		
+		if(mDiffuseTexture != null){
+			gl.glUniform1f(mHasDiffuseTextureUniformLocation, 1.0f);
+			mDiffuseTexture.bind(gl, 0);
+		} else {
+			gl.glUniform1f(mHasDiffuseTextureUniformLocation, 0.0f);
+		}
+		
+		if(mSpecularTexture != null){
+			gl.glUniform1f(mHasSpecularTextureUniformLocation, 1.0f);
+			mSpecularTexture.bind(gl, 1);
+		} else {
+			gl.glUniform1f(mHasSpecularTextureUniformLocation, 0.0f);
+		}
+		
+		if(mAlphaXTexture != null){
+			gl.glUniform1f(mHasAlphaXTextureUniformLocation, 1.0f);
+			mAlphaXTexture.bind(gl, 2);
+		} else {
+			gl.glUniform1f(mHasAlphaXTextureUniformLocation, 0.0f);
+		}
+		
+		if(mAlphaYTexture != null){
+			gl.glUniform1f(mHasAlphaYTextureUniformLocation, 1.0f);
+			mAlphaYTexture.bind(gl, 3);
+		} else {
+			gl.glUniform1f(mHasAlphaYTextureUniformLocation, 0.0f);
+		}
 	}
 	
 	@Override
@@ -189,6 +221,21 @@ public class AnisotropicWardMaterial extends Material
 		/* Unbind everything bound in bind(). */
 		getShaderProgram().unbind(gl);
 		
-		// TODO PA1: Unbind any used textures.		
+		// DONE PA1 (D): Unbind any used textures.
+		if(mDiffuseTexture != null){
+			mDiffuseTexture.unbind(gl);
+		}
+		
+		if(mSpecularTexture != null){
+			mSpecularTexture.unbind(gl);
+		}
+		
+		if(mAlphaXTexture != null){
+			mAlphaXTexture.unbind(gl);
+		}
+		
+		if(mAlphaYTexture != null){
+			mAlphaYTexture.unbind(gl);
+		}
 	}
 }
