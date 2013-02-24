@@ -421,40 +421,45 @@ void main()
 	/* Branch on material ID and shade as appropriate. */
 	int materialID = int(materialParams1.x);
 
+	vec3 result = vec3(0.0);
+
 	if (materialID == 0)
 	{
 		/* Must be a fragment with no geometry, so set to sky (background) color. */
 		gl_FragColor = vec4(SkyColor, 1.0);
 	}
+	
+	//floor, spheres
 	else if (materialID == UNSHADED_MATERIAL_ID)
 	{
 		/* Unshaded material is just a constant color. */
-		gl_FragColor.rgb = diffuse;
+		gl_FragColor.rgb = diffuse; 
 	}
 	
 	// DONE PA1: Add logic to handle all other material IDs. Remember to loop over all NumLights.
 	else
+	
+	//ship, ceiling
 	if(materialID == BLINNPHONG_MATERIAL_ID)
 	{
-		vec3 result = vec3(0.0);
+		
 		for(int i = 0; i < NumLights; i++){
 			vec3 shade = shadeBlinnPhong(diffuse, materialParams2.rgb, materialParams2.a, position, normal, LightPositions[i], LightColors[i], LightAttenuations[i]);
 			result +=  shade;
 		}
-		gl_FragColor.rgb = result;
+		gl_FragColor.rgb =  result; 
 	}
 	else
 	if(materialID == LAMBERTIAN_MATERIAL_ID)
 	{
-		vec3 result = vec3(0.0);
 		for(int i = 0; i < NumLights; i++){
 			vec3 shade = shadeLambertian(diffuse, position, normal, LightPositions[i], LightColors[i], LightAttenuations[i]);
 			result +=  shade;
 		}
-		gl_FragColor.rgb = result;
+		gl_FragColor.rgb =  result;
 		
+		 //monkey
 	}else if (materialID == COOKTORRANCE_MATERIAL_ID){
-		vec3 result = vec3(0.0);
 		for(int i = 0; i < NumLights; i++){
 			vec3 shade = shadeCookTorrance(diffuse,  materialParams2.xyz, materialParams1.y, materialParams1.z, position, normal,
 			LightPositions[i], LightColors[i], LightAttenuations[i]);
@@ -466,7 +471,6 @@ void main()
 	
 	else if(materialID == ISOTROPIC_WARD_MATERIAL_ID)
 	{
-		vec3 result = vec3(0.0);
 		for(int i = 0; i < NumLights; i++){
 			vec3 shade = shadeIsotropicWard(diffuse, materialParams2.rgb, materialParams2.a, position,
 				normal, LightPositions[i], LightColors[i], LightAttenuations[i]);
@@ -477,8 +481,7 @@ void main()
 	else
 	if(materialID == ANISOTROPIC_WARD_MATERIAL_ID)
 	{
-		vec3 result = vec3(0.0);
-		
+
 	    vec3 tangent = decode(vec2(materialParams1.a,
 	    						   materialParams2.a));
 	    tangent -= dot(tangent, normal) * normal;
@@ -493,9 +496,19 @@ void main()
 			vec3 shade = shadeAnisotropicWard(diffuse, materialParams2.rgb, materialParams1.g, materialParams1.b, position,
 										normal, tangent, bitangent, LightPositions[i], LightColors[i], LightAttenuations[i]);
 			result += shade;
-		}
+		}  
 		gl_FragColor.rgb = result;
+	}	else if(materialID == REFLECTION_MATERIAL_ID)
+	{
+		for(int i = 0; i < NumLights; i++){
+			vec3 shade = shadeIsotropicWard(diffuse, materialParams2.rgb, materialParams2.a, position,
+				normal, LightPositions[i], LightColors[i], LightAttenuations[i]);
+			result += shade;
+		}
+		gl_FragColor.rgb = vec3(1.0,0.3,0.0);
 	}
+
+
 
 	
 	// TODO PA2: (1) Add logic to handle the new reflection material; (2) Extend your Cook-Torrance
@@ -510,4 +523,6 @@ void main()
 	{
 		gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0), silhouetteStrength()); 
 	}
+	
+	//gl_FragColor.rgb = vec3(0.0,1.0,0.0);
 }

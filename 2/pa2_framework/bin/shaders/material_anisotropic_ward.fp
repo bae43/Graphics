@@ -49,59 +49,23 @@ vec2 encode(vec3 n)
 
 void main()
 {
-	// DONE PA1: Store diffuse color, position, encoded normal, material ID, and all other useful data in the g-buffer.
-	 
-	 vec3 DColor = DiffuseColor;
-	 vec3 SColor = SpecularColor;
-	 float AX = AlphaX;
-	 float AY = AlphaY;
+	/* Standard vertex transform. */
+	gl_Position = ftransform();
 	
-	if(HasDiffuseTexture){
-		vec4 texDiffuse = texture2D(DiffuseTexture, TexCoord);
-		DColor = DiffuseColor * texDiffuse.rgb;
-	}
-	
-	if(HasSpecularTexture){
-		vec4 texSpecular = texture2D(SpecularTexture, TexCoord);
-		SColor = SpecularColor * texSpecular.xyz;
-	}
-	
-	if(HasAlphaXTexture){
-		vec4 texAlphaX = texture2D(AlphaXTexture, TexCoord);
-		AX = texAlphaX.x;
-	}
-	
-	if(HasAlphaYTexture){
-		vec4 texAlphaY = texture2D(AlphaYTexture, TexCoord);
-		AY = texAlphaY.x;
-	}
-	
-	/* Store:
-	 *	Diffuse			3
-	 *	Position		3
-	 *	Specular		3
-	 *	Material_ID		1
-	 *		& Bitangent Sign
-	 *	ENC Normal		2 <= (3)
-	 *	ENC Tangent		2 <= (3)
-	 *	AlphaX			1
-	 *	AlphaY			1
-	 					= 16
+	/* DONE PA1: Transform stuff into eye space and store in varyings.
+	 *           You must also construct the Bitangent from the VertexTangent attribute.
+	 *           Note that VertexTangent.xyz is the tangent and VertexTangent.w is the handedness of the bitangent.
 	 */
-	 
-	 /* Encode. */
-	vec2 enc_N = encode(normalize(EyespaceNormal));
-	vec2 enc_T = encode(normalize(EyespaceTangent));
 	
-	vec3 Bi_Cross = cross(normalize(EyespaceNormal), normalize(EyespaceTangent));
+	/* Pass eyespace position and normal to the fragment shader. */
+	EyespacePosition = vec3(gl_ModelViewMatrix * gl_Vertex);
+	EyespaceNormal = normalize(gl_NormalMatrix * gl_Normal);
 	
-	float ID = float(ANISOTROPIC_WARD_MATERIAL_ID);
-	if(dot(Bi_Cross, EyespaceBiTangent) < 0){
-		ID = -1.0 * ID;
-	}
+	/* As well as tangent and bitangent */
+	vec3 bitangent = cross(gl_Normal, VertexTangent.xyz) * VertexTangent.w;
 	
-	gl_FragData[0] = vec4(DColor, enc_N.x);
-	gl_FragData[1] = vec4(EyespacePosition, enc_N.y);
-	gl_FragData[2] = vec4(ID, AX, AY, enc_T.x);
-	gl_FragData[3] = vec4(SColor, enc_T.y);
+	EyespaceTangent = gl_NormalMatrix * VertexTangent.xyz;
+	EyespaceBiTangent = gl_NormalMatrix * bitangent.xyz;
+	
+	TexCoord = vec2(gl_MultiTexCoord0);
 }

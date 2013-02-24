@@ -113,10 +113,44 @@ public class NormalMapMaterial extends Material{
 	
 	@Override
 	public void bind(GL2 gl) throws OpenGLException {
+
+				
+		/* Bind shader and any textures, and update uniforms. */
 		getShaderProgram().bind(gl);
 		
-		//TODO PA2: Set shader uniforms and bind textures			
+		// DONE PA2 (D): Set shader uniforms and bind any textures.
+		gl.glUniform3f(mDiffuseUniformLocation, mDiffuseColor.x, mDiffuseColor.y, mDiffuseColor.z);
+		gl.glUniform3f(mSpecularUniformLocation, mSpecularColor.x, mSpecularColor.y, mSpecularColor.z);
+		gl.glUniform1f(mExponentUniformLocation, mPhongExponent);
+
 		
+		if(mDiffuseTexture != null){
+			gl.glUniform1f(mHasDiffuseTextureUniformLocation, 1.0f);
+			mDiffuseTexture.bind(gl, 0);
+		} else {
+			gl.glUniform1f(mHasDiffuseTextureUniformLocation, 0.0f);
+		}
+		
+		if(mSpecularTexture != null){
+			gl.glUniform1f(mHasSpecularTextureUniformLocation, 1.0f);
+			mSpecularTexture.bind(gl, 1);
+		} else {
+			gl.glUniform1f(mHasSpecularTextureUniformLocation, 0.0f);
+		}
+		
+		if(mExponentTexture != null){
+			gl.glUniform1f(mHasExponentTextureUniformLocation, 1.0f);
+			mExponentTexture.bind(gl, 2);
+		} else {
+			gl.glUniform1f(mHasExponentTextureUniformLocation, 0.0f);
+		}
+		
+		if(mNormalTexture != null){
+			gl.glUniform1f(mHasNormalTextureUniformLocation, 1.0f);
+			mNormalTexture.bind(gl, 3);
+		} else {
+			gl.glUniform1f(mHasNormalTextureUniformLocation, 0.0f);
+		}
 	}
 
 	@Override
@@ -143,9 +177,17 @@ public class NormalMapMaterial extends Material{
 	
 	@Override
 	public void unbind(GL2 gl) {
+
+		/* Unbind anything bound in bind(). */
 		getShaderProgram().unbind(gl);
-		
-		// TODO PA2: Unbind any used textures.
+
+		// DONE PA2 (D): Unbind any used textures.
+		if(mNormalTexture != null){
+			mNormalTexture.unbind(gl);
+		}	
+		if(mDiffuseTexture != null){
+			mDiffuseTexture.unbind(gl);
+		}	
 		
 	}
 

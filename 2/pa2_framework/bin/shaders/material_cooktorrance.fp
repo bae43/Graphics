@@ -32,6 +32,9 @@ uniform bool HasSpecularTexture;
 uniform bool HasMTexture;
 uniform bool HasNTexture;
 
+/* Environment cube map index (0 means not to use environment lighting) */
+uniform int CubeMapIndex;
+
 /* Fragment position and normal, and texcoord, from vertex shader. */
 varying vec3 EyespacePosition;
 varying vec3 EyespaceNormal;
@@ -45,7 +48,7 @@ vec2 encode(vec3 n)
 
 void main()
 {
-	// DONE PA1: Store diffuse color, position, encoded normal, material ID, and all other useful data in the g-buffer.
+		// DONE PA1: Store diffuse color, position, encoded normal, material ID, and all other useful data in the g-buffer.
 	gl_FragData[0] = gl_FragData[1] = gl_FragData[2] = gl_FragData[3] = vec4(1.0);
 	
 	////////////////////////////////////////////////////////////////////////////
@@ -88,4 +91,7 @@ void main()
 	gl_FragData[2] = vec4(float(COOKTORRANCE_MATERIAL_ID), M2, N2, 0.0);
 	gl_FragData[3] = vec4(SColor, 0.0);
 	
+	// TODO PA2: Store the cube map index in the g-buffer.
+	
+	//gl_FragData[0] = gl_FragData[1] = gl_FragData[2] = gl_FragData[3] = vec4(1.0);		
 }

@@ -73,5 +73,4 @@ void main()
 	gl_FragData[0] = vec4(DColor, enc.x);
 	gl_FragData[1] = vec4(EyespacePosition, enc.y);
 	gl_FragData[2] = vec4(float(BLINNPHONG_MATERIAL_ID), 0.0, 0.0, 0.0);
-	gl_FragData[3] = vec4(SColor, PExponent);
-}
+	gl_FragData[3] = vec4(SColor, PExponent);}
