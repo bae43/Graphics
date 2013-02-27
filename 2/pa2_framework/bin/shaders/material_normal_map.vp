@@ -31,8 +31,16 @@ void main() {
 	 *           Note that VertexTangent.xyz is the tangent and VertexTangent.w is the handedness of the bitangent.
 	 */
 	 	
-	EyespacePosition = EyespaceNormal = EyespaceTangent = EyespaceBiTangent = vec3(1.0);
-	TexCoord = vec2(1.0);
+
+	EyespacePosition = vec3(gl_ModelViewMatrix * gl_Vertex);
+	EyespaceNormal = normalize(gl_NormalMatrix * gl_Normal);
+
+	vec3 bitangent = cross(gl_Normal, VertexTangent.xyz) * VertexTangent.w;
+	
+	EyespaceTangent = gl_NormalMatrix * VertexTangent.xyz;
+	EyespaceBiTangent = gl_NormalMatrix * bitangent.xyz;
+	
+	TexCoord = vec2(gl_MultiTexCoord0);
 }
 
 

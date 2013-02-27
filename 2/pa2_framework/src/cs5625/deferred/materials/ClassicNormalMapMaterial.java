@@ -181,6 +181,14 @@ public class ClassicNormalMapMaterial extends Material {
 		if (mDiffuseTexture != null) {
 			mDiffuseTexture.unbind(gl);
 		}
+		
+		if (mExponentTexture != null) {
+			mExponentTexture.unbind(gl);
+		}
+		
+		if (mSpecularTexture != null) {
+			mSpecularTexture.unbind(gl);
+		}
 
 	}
 

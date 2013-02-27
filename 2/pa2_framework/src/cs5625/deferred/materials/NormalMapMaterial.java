@@ -189,6 +189,14 @@ public class NormalMapMaterial extends Material{
 			mDiffuseTexture.unbind(gl);
 		}	
 		
+		if(mExponentTexture != null){
+			mExponentTexture.unbind(gl);
+		}	
+		
+		if(mSpecularTexture != null){
+			mSpecularTexture.unbind(gl);
+		}	
+		
 	}
 
 	@Override

@@ -192,6 +192,12 @@ public class CookTorranceMaterial extends Material
 		} else {
 			gl.glUniform1f(mHasNTextureUniformLocation, 0.0f);
 		}
+		if(mCubeMapTexture != null){
+			gl.glUniform1f(mCubeMapIndexUniformLocation, 1.0f);
+			mCubeMapTexture.bind(gl, 4);
+		} else {
+			gl.glUniform1f(mCubeMapIndexUniformLocation, 0.0f);
+		}
 	}
 	
 	@Override
@@ -241,6 +247,9 @@ public class CookTorranceMaterial extends Material
 		
 		if(mNTexture != null){
 			mNTexture.unbind(gl);
+		}	
+		if(mCubeMapTexture != null){
+			mCubeMapTexture.unbind(gl);
 		}	
 	}
 }

@@ -75,7 +75,8 @@ void main()
 	}
 
 	if(HasNormalTexture){
-		nrm = encode(texture2D(NormalTexture, TexCoord).xyz);
+		vec3 norm_temp = (texture2D(NormalTexture, TexCoord).xyz);
+		nrm = encode(normalize(gl_NormalMatrix * (norm_temp-0.5)));
 	}
 	
 	gl_FragData[0] = vec4(DiffuseColor * dif.xyz, nrm.x);

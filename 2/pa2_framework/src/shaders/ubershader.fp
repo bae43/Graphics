@@ -255,7 +255,6 @@ vec3 shadeCookTorrance(vec3 diffuse, vec3 specular, float m, float n, vec3 posit
 	float g = min(temp*ndotv,temp*ndotl);
 	g = min(1.0,g);
 	
-
 	
 	vec3 spec = (specular/M_PI)*(f*d*g)/(ndotl*ndotv);
 	
@@ -408,6 +407,10 @@ vec3 shadeReflective(vec3 position, vec3 normal, int cubeMapIndex)
 
 void main()
 {
+
+	/* Initialize fragment to black. */
+	gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+
 	vec3 diffuse         = texture2DRect(DiffuseBuffer, gl_FragCoord.xy).xyz;
 	vec3 position        = texture2DRect(PositionBuffer, gl_FragCoord.xy).xyz;
 	vec4 materialParams1 = texture2DRect(MaterialParams1Buffer, gl_FragCoord.xy);
@@ -415,8 +418,7 @@ void main()
 	vec3 normal          = decode(vec2(texture2DRect(DiffuseBuffer, gl_FragCoord.xy).a,
 	                                   texture2DRect(PositionBuffer, gl_FragCoord.xy).a));
 	
-	/* Initialize fragment to black. */
-	gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+
 
 	/* Branch on material ID and shade as appropriate. */
 	int materialID = int(materialParams1.x);
