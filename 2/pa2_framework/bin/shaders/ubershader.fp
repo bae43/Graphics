@@ -87,19 +87,21 @@ vec3 sampleCubeMap(vec3 r, int cubeMapIndex)
    	vec2 pos = vec2(0.5);//acos(-r.z), tan(2.0*r.y) ,tan(2.0*r.x));
  	   	
  	vec3 sampledColor = vec3(0.0);
- 	
-	if (cubeMapIndex == -1) { /* Sample the static cube map */
-		return texture2D(StaticCubeMapTexture, pos).xyz;
+ 	/*
+	if (cubeMapIndex == -1) {  Sample the static cube map 
+		return texture2DRect(StaticCubeMapTexture, pos).xyz;
 	} else if (cubeMapIndex == 0) {
-		return texture2D(DynamicCubeMapTexture0, pos).xyz;
+		return texture2DRect(DynamicCubeMapTexture0, pos).xyz;
 	} else if (cubeMapIndex == 1) {
-		return texture2D(DynamicCubeMapTexture1, pos).xyz;
+		return texture2DRect(DynamicCubeMapTexture1, pos).xyz;
 	} else if (cubeMapIndex == 2) {
-		return texture2D(DynamicCubeMapTexture2, pos).xyz;
+		return texture2DRect(DynamicCubeMapTexture2, pos).xyz;
 	} else{
 		//orange (error checking)
 		return vec3(1.0,0.2,0.0);
-	}	 	 	 	
+	}	 	 	 	*/
+
+	return vec3(1.0,0.2,0.0);
 
 }
 
@@ -119,7 +121,7 @@ vec3 sampleCubeMap(vec3 r, int cubeMapIndex)
 vec3 mixEnvMapWithBaseColor(int cubeMapIndex, vec3 baseColor, vec3 position, vec3 normal, float n) {
 	// TODO PA2: Implement the requirements of this function. 
 	// Hint: You can use the GLSL command mix to linearly blend between two colors.
-<<<<<<< HEAD
+
 	samplerCube map;
 	if(cubeMapIndex == 0){
 		map = DynamicCubeMapTexture0;
@@ -130,16 +132,9 @@ vec3 mixEnvMapWithBaseColor(int cubeMapIndex, vec3 baseColor, vec3 position, vec
 	}
 	vec3 env_color = vec3(1.0,0.3,0.0);
 
-	vec3 r = 2 * dot(n,v) * n - v;
-	vec3 env_color = sampleCubeMap(r,cubeMapIndex);
-
-
 	return mix(baseColor, env_color, n);
 
-=======
-	
-	return vec3(0.0);
->>>>>>> 094589c199db73ac0c6edd661fae1160105c763b
+
 }
 
 /**
@@ -327,7 +322,7 @@ vec3 shadeCookTorrance(vec3 diffuse, vec3 specular, float m, float n, vec3 posit
 	g = min(1.0,g);
 	
 	
-	vec3 spec = min(0.0,(specular/M_PI)*(f*d*g)/(ndotl*ndotv));
+	vec3 spec = (specular/M_PI)*(f*d*g)/(ndotl*ndotv);
 	
 	
 	float r = length(lightPosition - position);

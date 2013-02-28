@@ -68,13 +68,10 @@ void main()
 	}
 	
 	if(HasNormalTexture){
-<<<<<<< HEAD
-		vec3 norm_temp = (texture2D(NormalTexture, TexCoord).xyz);
-		nrm = encode(normalize(norm_temp-0.5));
-=======
-		vec4 texNorm = texture2D(NormalTexture, TexCoord);
-		newNormal = (texNorm.xyz - vec3(0.5));
->>>>>>> 094589c199db73ac0c6edd661fae1160105c763b
+
+		vec3 texNorm = texture2D(NormalTexture, TexCoord).xyz;
+		newNormal = (texNorm - 0.5);
+
 	}
 	 
 	/* Encode. */

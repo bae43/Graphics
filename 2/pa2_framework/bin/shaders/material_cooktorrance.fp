@@ -48,15 +48,7 @@ vec2 encode(vec3 n)
 
 void main()
 {
-<<<<<<< HEAD
-		// DONE PA1: Store diffuse color, position, encoded normal, material ID, and all other useful data in the g-buffer.
 
-=======
-		// TODO (DONE) PA1: Store diffuse color, position, encoded normal, material ID, and all other useful data in the g-buffer.
-	gl_FragData[0] = gl_FragData[1] = gl_FragData[2] = gl_FragData[3] = vec4(1.0);
-	
-	////////////////////////////////////////////////////////////////////////////
->>>>>>> 094589c199db73ac0c6edd661fae1160105c763b
 	
 	/* Encode the eyespace normal. */
 	vec2 enc = encode(normalize(EyespaceNormal));

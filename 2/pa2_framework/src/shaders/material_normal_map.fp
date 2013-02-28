@@ -52,7 +52,7 @@ void main()
 	
 	vec3 DColor = DiffuseColor;
 	vec3 SColor = SpecularColor;
-	vec3 newNormal = EyespaceNormal;
+	vec3 nrm = EyespaceNormal;
 	float PExponent = PhongExponent;
 	
 	if(HasDiffuseTexture){
@@ -71,17 +71,14 @@ void main()
 	}
 	
 	if(HasNormalTexture){
-<<<<<<< HEAD
+
 		vec3 norm_temp = (texture2D(NormalTexture, TexCoord).xyz);
-		nrm = encode(normalize(gl_NormalMatrix * (norm_temp-0.5)));
-=======
-		vec3 texNorm = (texture2D(NormalTexture, TexCoord).xyz * 2.0) - vec3(1.0);
-		//newNormal = ?;
->>>>>>> 094589c199db73ac0c6edd661fae1160105c763b
+		nrm = normalize(gl_NormalMatrix * (norm_temp-0.5));
+
 	}
 	 
 	/* Encode. */
-	vec2 enc = encode(normalize(newNormal));
+	vec2 enc = encode(normalize(nrm));
 	
 	gl_FragData[0] = vec4(DColor, enc.x);
 	gl_FragData[1] = vec4(EyespacePosition, enc.y);
