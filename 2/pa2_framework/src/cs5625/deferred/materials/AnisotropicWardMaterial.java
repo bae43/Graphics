@@ -157,7 +157,7 @@ public class AnisotropicWardMaterial extends Material
 		/* Bind shader and any textures, and update uniforms. */
 		getShaderProgram().bind(gl);
 		
-		// DONE PA1: Set shader uniforms and bind any textures.
+		// TODO (DONE) PA1: Set shader uniforms and bind any textures.
 		gl.glUniform3f(mDiffuseUniformLocation, mDiffuseColor.x, mDiffuseColor.y, mDiffuseColor.z);
 		gl.glUniform3f(mSpecularUniformLocation, mSpecularColor.x, mSpecularColor.y, mSpecularColor.z);
 		gl.glUniform1f(mAlphaXUniformLocation, mAlphaX);
@@ -221,7 +221,7 @@ public class AnisotropicWardMaterial extends Material
 		/* Unbind everything bound in bind(). */
 		getShaderProgram().unbind(gl);
 		
-		// DONE PA1 (D): Unbind any used textures.
+		// TODO (DONE) PA1 : Unbind any used textures.
 		if(mDiffuseTexture != null){
 			mDiffuseTexture.unbind(gl);
 		}

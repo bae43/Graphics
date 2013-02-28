@@ -31,10 +31,18 @@ void main() {
 	 *           Note that VertexTangent.xyz is the tangent and VertexTangent.w is the handedness of the bitangent.
 	 */
 	 	
+<<<<<<< HEAD
 
 	EyespacePosition = vec3(gl_ModelViewMatrix * gl_Vertex);
 	EyespaceNormal = normalize(gl_NormalMatrix * gl_Normal);
 
+=======
+	/* Pass eyespace position and normal to the fragment shader. */
+	EyespacePosition = vec3(gl_ModelViewMatrix * gl_Vertex);
+	EyespaceNormal = normalize(gl_NormalMatrix * gl_Normal);
+	
+	/* As well as tangent and bitangent */
+>>>>>>> 094589c199db73ac0c6edd661fae1160105c763b
 	vec3 bitangent = cross(gl_Normal, VertexTangent.xyz) * VertexTangent.w;
 	
 	EyespaceTangent = gl_NormalMatrix * VertexTangent.xyz;

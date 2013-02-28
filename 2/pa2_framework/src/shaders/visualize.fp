@@ -42,7 +42,7 @@ void main()
 	vec4 materialParams2 = texture2DRect(MaterialParams2Buffer, gl_FragCoord.xy);
 	int materialID = int(materialParams1.x);
 	
-	/* DONE PA1: Output a color to visualize the g-buffer data at the given pixel.
+	/* TODO (DONE) PA1: Output a color to visualize the g-buffer data at the given pixel.
 	 *           You should visualize the data indicated by VisMode.
 	 */
 	 

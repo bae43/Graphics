@@ -42,7 +42,36 @@ vec2 encode(vec3 n)
 
 void main()
 {
-	// TODO PA1: Store diffuse color, position, encoded normal, material ID, and all other useful data in the g-buffer.
+	// TODO (DONE) PA1: Store diffuse color, position, encoded normal, material ID, and all other useful data in the g-buffer.
 	
-	gl_FragData[0] = gl_FragData[1] = gl_FragData[2] = gl_FragData[3] = vec4(1.0);	
+	/* Encode the eyespace normal. */
+	vec2 enc = encode(normalize(EyespaceNormal));
+	
+	/* Store diffuse, position, encoded normal, and the material ID into the gbuffer. Position
+	 * and normal aren't used for shading, but they might be required by a post-processing effect,
+	 * so we still have to write them out. */
+	 
+	 vec3 DColor = DiffuseColor;
+	 vec3 SColor = SpecularColor;
+	 float A = Alpha;
+	
+	if(HasDiffuseTexture){
+		vec4 texDiffuse = texture2D(DiffuseTexture, TexCoord);
+		DColor = DiffuseColor * texDiffuse.rgb;
+	}
+	
+	if(HasSpecularTexture){
+		vec4 texSpecular = texture2D(SpecularTexture, TexCoord);
+		SColor = SpecularColor * texSpecular.rgb;
+	}
+	
+	if(HasAlphaTexture){
+		vec4 texAlpha = texture2D(AlphaTexture, TexCoord);
+		A = texAlpha.r;
+	}
+	
+	gl_FragData[0] = vec4(DColor, enc.x);
+	gl_FragData[1] = vec4(EyespacePosition, enc.y);
+	gl_FragData[2] = vec4(float(ISOTROPIC_WARD_MATERIAL_ID), 0.0, 0.0, 0.0);
+	gl_FragData[3] = vec4(SColor, A);
 }

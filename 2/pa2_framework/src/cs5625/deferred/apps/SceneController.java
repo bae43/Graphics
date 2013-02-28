@@ -191,6 +191,7 @@ public abstract class SceneController implements MouseListener, MouseMotionListe
 	 * 'c'/'C': Decrease/Increase the bloom threshold.
 	 * 'x'/'X': Decrease/Increase the bloom width.
 	 */
+	
 	@Override
 	public void keyTyped(KeyEvent key)
 	{

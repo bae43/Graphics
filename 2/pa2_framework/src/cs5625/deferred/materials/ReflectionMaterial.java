@@ -52,13 +52,12 @@ public class ReflectionMaterial extends Material
 		/* Bind shader, and any textures, and update uniforms. */
 		getShaderProgram().bind(gl);
 
-		// DONE PA2: Set shader uniforms		
-		
-		if(mCubeMap != null){
-			gl.glUniform1f(mCubeMapIndexUniformLocation, 1.0f);
-			mCubeMap.bind(gl, 4);
+		// DONE PA2: Set shader uniforms
+		if(mCubeMap != null && mCubeMapIndexUniformLocation != -1){
+			mCubeMap.bind(gl, mCubeMapIndexUniformLocation);
 		} else {
-			gl.glUniform1f(mCubeMapIndexUniformLocation, 0.0f);
+			mCubeMap.unbind(gl);
+
 		}
 	}
 

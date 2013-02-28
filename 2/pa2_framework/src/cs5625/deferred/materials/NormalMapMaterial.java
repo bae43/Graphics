@@ -118,7 +118,7 @@ public class NormalMapMaterial extends Material{
 		/* Bind shader and any textures, and update uniforms. */
 		getShaderProgram().bind(gl);
 		
-		// DONE PA2 (D): Set shader uniforms and bind any textures.
+		// TODO (DONE) PA2 : Set shader uniforms and bind any textures.
 		gl.glUniform3f(mDiffuseUniformLocation, mDiffuseColor.x, mDiffuseColor.y, mDiffuseColor.z);
 		gl.glUniform3f(mSpecularUniformLocation, mSpecularColor.x, mSpecularColor.y, mSpecularColor.z);
 		gl.glUniform1f(mExponentUniformLocation, mPhongExponent);
@@ -181,13 +181,23 @@ public class NormalMapMaterial extends Material{
 		/* Unbind anything bound in bind(). */
 		getShaderProgram().unbind(gl);
 
-		// DONE PA2 (D): Unbind any used textures.
-		if(mNormalTexture != null){
-			mNormalTexture.unbind(gl);
-		}	
+		// TODO (DONE) PA2 : Unbind any used textures.
+		
 		if(mDiffuseTexture != null){
 			mDiffuseTexture.unbind(gl);
-		}	
+		}
+		
+		if(mSpecularTexture != null){
+			mSpecularTexture.unbind(gl);
+		}
+		
+		if(mExponentTexture != null){
+			mExponentTexture.unbind(gl);
+		}
+		
+		if(mNormalTexture != null){
+			mNormalTexture.unbind(gl);
+		}
 		
 		if(mExponentTexture != null){
 			mExponentTexture.unbind(gl);

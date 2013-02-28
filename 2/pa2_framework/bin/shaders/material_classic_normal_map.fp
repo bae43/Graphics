@@ -44,40 +44,44 @@ vec2 encode(vec3 n)
 
 void main()
 {
-		// TODO PA2: Store diffuse color, position, encoded normal, material ID, and all other useful data in the g-buffer.
-	//			 Use the normal map and tangent vectors to get a new normal.
+	// TODO PA2: Store diffuse color, position, encoded normal, material ID, and all other useful data in the g-buffer.
+	//			 Use the normal map to get a new normal.
 	
-		// DONE PA1: Store diffuse color, position, encoded normal, material ID, and all other useful data in the g-buffer.
+	vec3 DColor = DiffuseColor;
+	vec3 SColor = SpecularColor;
+	vec3 newNormal = EyespaceNormal;
+	float PExponent = PhongExponent;
 	
-	/* Encode the eyespace normal. */
-	vec2 nrm = encode(normalize(EyespaceNormal));
-	
-	/* Store diffuse, position, encoded normal, and the material ID into the gbuffer. Position
-	 * and normal aren't used for shading, but they might be required by a post-processing effect,
-	 * so we still have to write them out. */
-	 
-	vec4 dif = vec4(0.0);
 	if(HasDiffuseTexture){
-		dif = texture2D(DiffuseTexture, TexCoord);
+		vec4 texDiffuse = texture2D(DiffuseTexture, TexCoord);
+		DColor = DiffuseColor * texDiffuse.rgb;
 	}
-
-	vec3 spec = vec3(0.0);
+	
 	if(HasSpecularTexture){
-		spec = (texture2D(SpecularTexture, TexCoord)).xyz;
+		vec4 texSpecular = texture2D(SpecularTexture, TexCoord);
+		SColor = SpecularColor * texSpecular.xyz;
 	}
-
-	float ex = (0.0);
+	
 	if(HasExponentTexture){
-		ex = (texture2D(ExponentTexture, TexCoord)).x;
+		vec4 texExponent = texture2D(ExponentTexture, TexCoord);
+		PExponent = 255.0 * texExponent.x;
 	}
-
+	
 	if(HasNormalTexture){
+<<<<<<< HEAD
 		vec3 norm_temp = (texture2D(NormalTexture, TexCoord).xyz);
 		nrm = encode(normalize(norm_temp-0.5));
+=======
+		vec4 texNorm = texture2D(NormalTexture, TexCoord);
+		newNormal = (texNorm.xyz - vec3(0.5));
+>>>>>>> 094589c199db73ac0c6edd661fae1160105c763b
 	}
+	 
+	/* Encode. */
+	vec2 enc = encode(normalize(newNormal));
 	
-	gl_FragData[0] = vec4(DiffuseColor * dif.xyz, nrm.x);
-	gl_FragData[1] = vec4(EyespacePosition, nrm.y);
-	gl_FragData[2] = vec4(float(BLINNPHONG_MATERIAL_ID), 0.0,0.0,0.0);
-	gl_FragData[3] = vec4(spec.xyz,ex);
+	gl_FragData[0] = vec4(DColor, enc.x);
+	gl_FragData[1] = vec4(EyespacePosition, enc.y);
+	gl_FragData[2] = vec4(float(BLINNPHONG_MATERIAL_ID), 0.0, 0.0, 0.0);
+	gl_FragData[3] = vec4(SColor, PExponent);
 }
