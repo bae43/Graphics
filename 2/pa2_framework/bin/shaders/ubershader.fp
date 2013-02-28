@@ -76,28 +76,31 @@ vec3 decode(vec2 v)
  * 
  * @return The color of the sample.
  */
-vec3 sampleCubeMap(vec3 reflectedDirection, int cubeMapIndex)
+vec3 sampleCubeMap(vec3 r, int cubeMapIndex)
 {
 	/* Transform the index, so that	valid values will be within 
 	   [-1, MAX_DYNAMIC_CUBE_MAPS - 1], where -1 means to sample 
 	   the static cube map, and values larger than 0 will be identified 
 	   with the dynamic cube maps. */
- 	   
-   	cubeMapIndex = cubeMapIndex - 2; 	   
+
+   	cubeMapIndex = cubeMapIndex - 2;
+   	vec2 pos = vec2(0.5);//acos(-r.z), tan(2.0*r.y) ,tan(2.0*r.x));
  	   	
  	vec3 sampledColor = vec3(0.0);
  	
 	if (cubeMapIndex == -1) { /* Sample the static cube map */
-		sampledColor = textureCube(StaticCubeMapTexture, reflectedDirection).xyz;
+		return texture2D(StaticCubeMapTexture, pos).xyz;
 	} else if (cubeMapIndex == 0) {
-		sampledColor = textureCube(DynamicCubeMapTexture0, reflectedDirection).xyz;
+		return texture2D(DynamicCubeMapTexture0, pos).xyz;
 	} else if (cubeMapIndex == 1) {
-		sampledColor = textureCube(DynamicCubeMapTexture1, reflectedDirection).xyz;
+		return texture2D(DynamicCubeMapTexture1, pos).xyz;
 	} else if (cubeMapIndex == 2) {
-		sampledColor = textureCube(DynamicCubeMapTexture2, reflectedDirection).xyz;
-	} 	 	 	 	
-	
-	return sampledColor;
+		return texture2D(DynamicCubeMapTexture2, pos).xyz;
+	} else{
+		//orange (error checking)
+		return vec3(1.0,0.2,0.0);
+	}	 	 	 	
+
 }
 
 /**
@@ -116,8 +119,22 @@ vec3 sampleCubeMap(vec3 reflectedDirection, int cubeMapIndex)
 vec3 mixEnvMapWithBaseColor(int cubeMapIndex, vec3 baseColor, vec3 position, vec3 normal, float n) {
 	// TODO PA2: Implement the requirements of this function. 
 	// Hint: You can use the GLSL command mix to linearly blend between two colors.
-	
-	return vec3(0.0);	
+	samplerCube map;
+	if(cubeMapIndex == 0){
+		map = DynamicCubeMapTexture0;
+	}else if(cubeMapIndex == 1){
+		map = DynamicCubeMapTexture1;
+	}else if(cubeMapIndex == 2){
+		map = DynamicCubeMapTexture2;
+	}
+	vec3 env_color = vec3(1.0,0.3,0.0);
+
+	vec3 r = 2 * dot(n,v) * n - v;
+	vec3 env_color = sampleCubeMap(r,cubeMapIndex);
+
+
+	return mix(baseColor, env_color, n);
+
 }
 
 /**
@@ -256,13 +273,7 @@ vec3 shadeCookTorrance(vec3 diffuse, vec3 specular, float m, float n, vec3 posit
 	g = min(1.0,g);
 	
 	
-	vec3 spec = (specular/M_PI)*(f*d*g)/(ndotl*ndotv);
-	
-	if(spec.x > 0.0){
-		return vec3(1.0,0.0,0.0);
-	} else {
-		return vec3(0.0,1.0,0.0);
-	}
+	vec3 spec = min(0.0,(specular/M_PI)*(f*d*g)/(ndotl*ndotv));
 	
 	
 	float r = length(lightPosition - position);
