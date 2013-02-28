@@ -42,7 +42,7 @@ vec2 encode(vec3 n)
 
 void main()
 {
-	// DONE PA1: Store diffuse color, position, encoded normal, material ID, and all other useful data in the g-buffer.
+	// TODO (DONE) PA1: Store diffuse color, position, encoded normal, material ID, and all other useful data in the g-buffer.
 	
 	/* Encode the eyespace normal. */
 	vec2 enc = encode(normalize(EyespaceNormal));
@@ -67,10 +67,11 @@ void main()
 	
 	if(HasExponentTexture){
 		vec4 texExponent = texture2D(ExponentTexture, TexCoord);
-		PExponent = 255 * texExponent.x;
+		PExponent = 255.0 * texExponent.x;
 	}
 	
 	gl_FragData[0] = vec4(DColor, enc.x);
 	gl_FragData[1] = vec4(EyespacePosition, enc.y);
 	gl_FragData[2] = vec4(float(BLINNPHONG_MATERIAL_ID), 0.0, 0.0, 0.0);
-	gl_FragData[3] = vec4(SColor, PExponent);}
+	gl_FragData[3] = vec4(SColor, PExponent);
+}

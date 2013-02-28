@@ -21,5 +21,22 @@ uniform float Threshold;
 
 void main()
 {
-    gl_FragColor = vec4(0.0);
+    vec4 pixel = texture2DRect(FinalSceneBuffer, gl_FragCoord.xy);
+    
+    float h = (float(KernelWidth) - 1.0);
+    for(float i = -h; i <= h; i++){
+    	for(float j = -h; j <= h; j++){
+    	
+			vec4 t = texture2DRect(FinalSceneBuffer, gl_FragCoord.xy + vec2(i, j));
+			if(length(t.rgb) < Threshold){
+				t = vec4(0.0);
+			} else {
+				t = normalize(t);
+			}
+			
+			pixel = pixel + t * exp(-(i * i + j * j) / (2.0 * KernelVariance));
+    	}
+    }
+    
+    gl_FragColor = pixel;
 }

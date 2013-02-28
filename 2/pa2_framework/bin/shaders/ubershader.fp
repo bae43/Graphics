@@ -117,7 +117,7 @@ vec3 mixEnvMapWithBaseColor(int cubeMapIndex, vec3 baseColor, vec3 position, vec
 	// TODO PA2: Implement the requirements of this function. 
 	// Hint: You can use the GLSL command mix to linearly blend between two colors.
 	
-	return vec3(0.0);	
+	return vec3(0.0);
 }
 
 /**
@@ -131,8 +131,46 @@ float silhouetteStrength()
 	//                 it expects pixel indices instead of texture coordinates. Use
 	//                 gl_FragCoord.xy to get the current pixel.
 	
+	vec2 c = gl_FragCoord.xy;
 	
-	return 0.0;	
+	float k = 0.3;
+	
+	float g_max_R = 0.0, g_min_R = 1.0,
+		  g_max_G = 0.0, g_min_G = 1.0,
+		  g_max_B = 0.0, g_min_B = 1.0,
+		  g_max_A = 0.0, g_min_A = 1.0;
+	
+	for(float i = -1.0; i <= 1.0; i++){
+		for(float j = -1.0; j <= 1.0; j++){
+		
+			if(i == j)
+				continue;
+			
+			vec4 t = texture2DRect(SilhouetteBuffer, c + vec2(i, j));
+			
+			g_max_R = max(g_max_R, t.r);
+			g_max_G = max(g_max_G, t.g);
+			g_max_B = max(g_max_B, t.b);
+			g_max_A = max(g_max_A, t.a);
+			
+			g_min_R = min(g_min_R, t.r);
+			g_min_G = min(g_min_G, t.g);
+			g_min_B = min(g_min_B, t.b);
+			g_min_A = min(g_min_A, t.a);
+		
+		}
+	}
+	
+	float t_r = pow((g_max_R - g_min_R) / k, 2.0),
+		  t_g = pow((g_max_G - g_min_G) / k, 2.0),
+		  t_b = pow((g_max_B - g_min_B) / k, 2.0),
+		  t_a = pow((g_max_A - g_min_A) / k, 2.0);
+	
+	float sum = t_r + t_g + t_b + t_a;
+	//return vec4(0.0);
+	vec4 result = vec4(min(t_r, 1.0), min(t_g, 1.0), min(t_b, 1.0), min(t_a, 1.0));
+	//return min(sum, 1.0);
+	return length(result);
 }
 
 /**
@@ -184,7 +222,18 @@ vec3 shadeBlinnPhong(vec3 diffuse, vec3 specular, float exponent, vec3 position,
 	float ndotl = max(0.0, dot(normal, lightDirection));
 	float ndoth = max(0.0, dot(normal, halfDirection));
 	
-	// TODO PA2: Update this function to threshold its n.l and n.h values if toon shading is enabled.	
+	// TODO PA2: Update this function to threshold its n.l and n.h values if toon shading is enabled.
+	if(EnableToonShading){
+		if(ndotl < 0.1)
+			ndotl = 0.0;
+		else
+			ndotl = 1.0;
+			
+		if(ndoth < 0.9)
+			ndoth = 0.0;
+		else
+			ndoth = 1.0;
+	}	
 	
 	float pow_ndoth = (ndotl > 0.0 && ndoth > 0.0 ? pow(ndoth, exponent) : 0.0);
 
@@ -233,7 +282,7 @@ vec3 shadeCookTorrance(vec3 diffuse, vec3 specular, float m, float n, vec3 posit
 	//half direction
 	vec3 h = normalize(l + v);	
 
-	// DONE PA1: Complete the Cook-Torrance shading function.
+	// TODO (DONE) PA1: Complete the Cook-Torrance shading function.
 	
 	float ndotv = max(0.0, dot(normal,  v));
 	float ndoth = max(0.0, dot(normal,  h));
@@ -255,7 +304,6 @@ vec3 shadeCookTorrance(vec3 diffuse, vec3 specular, float m, float n, vec3 posit
 	float g = min(temp*ndotv,temp*ndotl);
 	g = min(1.0,g);
 	
-
 	
 	vec3 spec = (specular/M_PI)*(f*d*g)/(ndotl*ndotv);
 	
@@ -308,7 +356,7 @@ vec3 shadeAnisotropicWard(vec3 diffuse, vec3 specular, float alphaX, float alpha
 	
 	vec3 finalColor = vec3(0.0);
 
-	// DONE PA1: Complete the Anisotropic Ward shading function.
+	// TODO (DONE) PA1: Complete the Anisotropic Ward shading function.
 	float ndotv = max(0.0, dot(normal,  viewDirection));
 	float ndoth = max(0.0, dot(normal,  halfDirection));
 	float ndotl = max(0.0, dot(normal, lightDirection));
@@ -359,10 +407,13 @@ vec3 shadeIsotropicWard(vec3 diffuse, vec3 specular, float alpha, vec3 position,
 	
 	vec3 finalColor = vec3(0.0);
 
-	// DONE PA1: Complete the Isotropic Ward shading function.
+	// TODO (DONE) PA1: Complete the Isotropic Ward shading function.
 	float ndotv = max(0.0, dot(normal,  viewDirection));
 	float ndoth = max(0.0, dot(normal,  halfDirection));
 	float ndotl = max(0.0, dot(normal, lightDirection));
+	
+	if(EnableToonShading) {
+	}
 	
 	float theta = acos(ndoth);
 	float tan_theta = tan(theta);
@@ -423,35 +474,24 @@ void main()
 
 	vec3 result = vec3(0.0);
 
-	if (materialID == 0)
-	{
+	if (materialID == 0) {
 		/* Must be a fragment with no geometry, so set to sky (background) color. */
 		gl_FragColor = vec4(SkyColor, 1.0);
 	}
-	
-	//floor, spheres
-	else if (materialID == UNSHADED_MATERIAL_ID)
-	{
+	else if (materialID == UNSHADED_MATERIAL_ID) {
 		/* Unshaded material is just a constant color. */
 		gl_FragColor.rgb = diffuse; 
 	}
 	
-	// DONE PA1: Add logic to handle all other material IDs. Remember to loop over all NumLights.
-	else
-	
-	//ship, ceiling
-	if(materialID == BLINNPHONG_MATERIAL_ID)
-	{
-		
+	// TODO (DONE) PA1: Add logic to handle all other material IDs. Remember to loop over all NumLights.
+	else if(materialID == BLINNPHONG_MATERIAL_ID) {
 		for(int i = 0; i < NumLights; i++){
 			vec3 shade = shadeBlinnPhong(diffuse, materialParams2.rgb, materialParams2.a, position, normal, LightPositions[i], LightColors[i], LightAttenuations[i]);
 			result +=  shade;
 		}
-		gl_FragColor.rgb =  result; 
+		gl_FragColor.rgb = result; 
 	}
-	else
-	if(materialID == LAMBERTIAN_MATERIAL_ID)
-	{
+	else if(materialID == LAMBERTIAN_MATERIAL_ID) {
 		for(int i = 0; i < NumLights; i++){
 			vec3 shade = shadeLambertian(diffuse, position, normal, LightPositions[i], LightColors[i], LightAttenuations[i]);
 			result +=  shade;
@@ -459,7 +499,8 @@ void main()
 		gl_FragColor.rgb =  result;
 		
 		 //monkey
-	}else if (materialID == COOKTORRANCE_MATERIAL_ID){
+	}
+	else if (materialID == COOKTORRANCE_MATERIAL_ID) {
 		for(int i = 0; i < NumLights; i++){
 			vec3 shade = shadeCookTorrance(diffuse,  materialParams2.xyz, materialParams1.y, materialParams1.z, position, normal,
 			LightPositions[i], LightColors[i], LightAttenuations[i]);
@@ -468,9 +509,7 @@ void main()
 		gl_FragColor.rgb = result;
 		
 	}
-	
-	else if(materialID == ISOTROPIC_WARD_MATERIAL_ID)
-	{
+	else if(materialID == ISOTROPIC_WARD_MATERIAL_ID) {
 		for(int i = 0; i < NumLights; i++){
 			vec3 shade = shadeIsotropicWard(diffuse, materialParams2.rgb, materialParams2.a, position,
 				normal, LightPositions[i], LightColors[i], LightAttenuations[i]);
@@ -478,12 +517,9 @@ void main()
 		}
 		gl_FragColor.rgb = result;
 	}
-	else
-	if(materialID == ANISOTROPIC_WARD_MATERIAL_ID)
-	{
+	else if(materialID == ANISOTROPIC_WARD_MATERIAL_ID) {
 
-	    vec3 tangent = decode(vec2(materialParams1.a,
-	    						   materialParams2.a));
+	    vec3 tangent = decode(vec2(materialParams1.a, materialParams2.a));
 	    tangent -= dot(tangent, normal) * normal;
 	    
 		vec3 bitangent = cross(normal, tangent);
@@ -513,16 +549,8 @@ void main()
 	
 	// TODO PA2: (1) Add logic to handle the new reflection material; (2) Extend your Cook-Torrance
 	// model to support perfect mirror reflection from an environment map, given by its index. 	
-	else
-	{
+	else {
 		/* Unknown material, so just use the diffuse color. */
 		gl_FragColor.rgb = diffuse;
 	}
-
-	if (EnableToonShading)
-	{
-		gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.0), silhouetteStrength()); 
-	}
-	
-	//gl_FragColor.rgb = vec3(0.0,1.0,0.0);
 }
