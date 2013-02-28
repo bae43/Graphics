@@ -132,7 +132,7 @@ vec3 mixEnvMapWithBaseColor(int cubeMapIndex, vec3 baseColor, vec3 position, vec
 	}
 	vec3 env_color = vec3(1.0,0.3,0.0);
 
-	return mix(baseColor, env_color, n);
+	return mix(baseColor, env_color, 0.2); // .2 -> n
 
 
 }
@@ -463,7 +463,35 @@ vec3 shadeIsotropicWard(vec3 diffuse, vec3 specular, float alpha, vec3 position,
 vec3 shadeReflective(vec3 position, vec3 normal, int cubeMapIndex)
 {	
 	// TODO PA2: Implement a perfect mirror material using environmnet map lighting.
+
+	float r;
+	vec2 uv_coord;
+	if(normal.x > normal.y){
+		if(normal.z > normal.x){
+			//z max
+			r = normal.z;
+			uv_coord = vec2(normal.x,normal.y);
+
+		}else{
+			// x max
+			r = normal.x;
+			uv_coord = vec2(normal.y,normal.z);
+		}
+	}else{
+		if(normal.z > normal.y){
+			//z max
+			r = normal.z;
+			uv_coord = vec2(normal.x,normal.y);
+		}else{
+			// y max
+			r = normal.y;
+			uv_coord = vec2(normal.x,normal.z);
+		}
+	}
 	
+	uv_coord = normalize(uv_coord);
+
+	sampleCubeMap(r, cubeMapIndex);
 	return vec3(0.0);
 }
 
@@ -548,14 +576,11 @@ void main()
 			result += shade;
 		}  
 		gl_FragColor.rgb = result;
-	}	else if(materialID == REFLECTION_MATERIAL_ID)
-	{
-		for(int i = 0; i < NumLights; i++){
-			vec3 shade = shadeIsotropicWard(diffuse, materialParams2.rgb, materialParams2.a, position,
-				normal, LightPositions[i], LightColors[i], LightAttenuations[i]);
-			result += shade;
-		}
-		gl_FragColor.rgb = vec3(1.0,0.3,0.0);
+	}	else if(materialID == REFLECTION_MATERIAL_ID){
+	
+		result = shadeReflective( position, normal, 1);	
+		
+		gl_FragColor.rgb = result;
 	}
 
 

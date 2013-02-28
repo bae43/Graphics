@@ -70,15 +70,30 @@ void main()
 		PExponent = 255.0 * texExponent.x;
 	}
 	
+	vec3 newNormal;
+	//////////////////
 	if(HasNormalTexture){
 
-		vec3 norm_temp = (texture2D(NormalTexture, TexCoord).xyz);
-		nrm = normalize(gl_NormalMatrix * (norm_temp-0.5));
+		vec3 nrm = texture2D(NormalTexture, TexCoord).xyz - 0.5;
+		//newNormal = EyespaceNormal + nrm.x * EyespaceTangent + nrm.y * EyespaceBiTangent;
+
+		vec3 tan_new = EyespaceTangent - dot(EyespaceNormal,EyespaceTangent)*EyespaceNormal;
+		vec3 bi_new = EyespaceBiTangent - dot(EyespaceNormal,EyespaceBiTangent)*EyespaceNormal -
+			 dot(tan_new,EyespaceBiTangent)*tan_new/(EyespaceTangent*EyespaceTangent);
+
+		tan_new = normalize(tan_new);
+		bi_new = normalize(bi_new);
+
+		mat3 transform = mat3(tan_new,bi_new,EyespaceNormal);
+		newNormal = transform * nrm;
 
 	}
 	 
 	/* Encode. */
-	vec2 enc = encode(normalize(nrm));
+	vec2 enc = encode(newNormal);
+
+
+	/////////////////
 	
 	gl_FragData[0] = vec4(DColor, enc.x);
 	gl_FragData[1] = vec4(EyespacePosition, enc.y);

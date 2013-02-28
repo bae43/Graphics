@@ -26,7 +26,18 @@ uniform int Axis;
 // through  gl_TexCoord[0]. TextureSize should be set to the width,
 // for horizontal, and the height, for vertical Gaussian blur. 
 
+
+float weight(float d){
+	return exp(-(d*d)/(2.0 * KernelVariance));
+} 
+
 void main()
-{
-    gl_FragColor = vec4(0.0);
+{	vec3 color = vec3(0.0);
+
+	for(int i = -KernelWidth; i<KernelWidth; i++){
+	//	vec3 cur_color = texture2D(SourceTexture, gl_FragCoord.xy+vec2(float(i))).rbg;
+	//	color += weight(float(i)) * cur_color;
+	}
+
+    gl_FragColor = vec4(color,1.0);
 }

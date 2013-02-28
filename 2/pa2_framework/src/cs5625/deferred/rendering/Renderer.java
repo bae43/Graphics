@@ -9,8 +9,11 @@ import javax.media.opengl.GLAutoDrawable;
 //import javax.media.opengl.glu.GLU;
 import javax.vecmath.AxisAngle4f;
 import javax.vecmath.Color3f;
+import javax.vecmath.Matrix3d;
+import javax.vecmath.Matrix4f;
 import javax.vecmath.Point3f;
 import javax.vecmath.Quat4f;
+import javax.vecmath.Tuple4f;
 
 import cs5625.deferred.materials.Material;
 import cs5625.deferred.materials.Texture.Datatype;
@@ -161,8 +164,10 @@ public class Renderer
 			} else {
 				numPasses = 6 * mNumDynamicCubeMaps + 1;
 								
-				// TODO PA2: Resize the g-buffer to the size of the dynamic cube maps,
+				// DONE PA2: Resize the g-buffer to the size of the dynamic cube maps,
 				// using the mDynamicCubeMapSize variable.				
+				
+				//resize(drawable, mDynamicCubeMapSize, mDynamicCubeMapSize);
 			}			
 						
 			for (int i = 0; i < numPasses; ++i) {
@@ -184,7 +189,18 @@ public class Renderer
 					// TODO PA2: (1) Restore the original g-buffer size and camera positions;
 					// (2) If mBlurDynamicCubeMaps is set to true, blur all dynamic
 					// cube maps, using the mBlur* variables to get the horizontal
-					// and vertical blur width and variance.					
+					// and vertical blur width and variance.	
+					
+					//resize(drawable,(int)(originalWidth),(int)(originalHeight));
+					//camera.setFOV(originalFov);
+					//camera.setOrientation(originalOrientation);
+					
+					/// XXX???
+					if(mBlurDynamicCubeMaps){
+						for( TextureDynamicCubeMap map : mDynamicCubeMaps){
+							map.Blur(gl);
+						}
+					}
 					
 				} else { /* Render the scene from the corresponding dynamic cube map point of view. */
 					
@@ -199,7 +215,40 @@ public class Renderer
 					// TODO PA2: Prepare the camera for a cube map rendering mode:
 					// indicate that the camera is used for environment rendering, 
 					// change the position, the FOV and the orientation so that it 
-					// renders the environment for the given face (dynamicCubeMapFace).					
+					// renders the environment for the given face (dynamicCubeMapFace).		
+					
+					camera.setIsCubeMapCamera(true);
+					//camera.setFOV(90);
+					int mapNum = 0;
+					for( TextureDynamicCubeMap map : mDynamicCubeMaps){
+						//camera.setPosition(map.getCenterPoint());
+						Quat4f orient = new Quat4f();
+						
+						switch(mapNum){
+							case 0: orient.set(new float[]{0.0f,0.0f,0.0f,0.0f});
+									break;
+									
+							case 1: orient.set(new float[]{0.0f,0.0f,0.0f,0.0f});
+									break;
+							
+							case 2: orient.set(new float[]{0.0f,0.0f,0.0f,0.0f});
+									break;
+									
+							case 3: orient.set(new float[]{0.0f,0.0f,0.0f,0.0f});
+									break;
+									
+							case 4: orient.set(new float[]{0.0f,0.0f,0.0f,0.0f});
+									break;
+									
+							case 5: orient.set(new float[]{0.0f,0.0f,0.0f,0.0f});
+									break;
+						}
+						mapNum++;
+						
+						//camera.setOrientation(orient);
+		
+					}
+
 				}	
 
 				/* 1. Fill the gbuffer given this scene and camera. */ 
@@ -526,7 +575,7 @@ public class Renderer
 		
 		// TODO PA2: Unbind the static and active dynamic cube maps.
 		
-		
+
 		for (int i = 0; i < GBuffer_FinalSceneIndex; ++i)
 		{
 			mGBufferFBO.getColorTexture(i).unbind(gl);

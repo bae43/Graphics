@@ -57,7 +57,6 @@ public class ReflectionMaterial extends Material
 			mCubeMap.bind(gl, mCubeMapIndexUniformLocation);
 		} else {
 			mCubeMap.unbind(gl);
-
 		}
 	}
 

@@ -68,10 +68,8 @@ void main()
 	}
 	
 	if(HasNormalTexture){
-
 		vec3 texNorm = texture2D(NormalTexture, TexCoord).xyz;
 		newNormal = (texNorm - 0.5);
-
 	}
 	 
 	/* Encode. */
