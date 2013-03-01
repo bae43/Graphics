@@ -224,13 +224,14 @@ public class Renderer {
 					camera.setFOV(originalFov);
 					camera.setOrientation(originalOrientation);
 					camera.setPosition(originalPosition);
-
+					camera.setIsCubeMapCamera(false);
+					
 					if (mBlurDynamicCubeMaps) {
 						for (TextureDynamicCubeMap map : mDynamicCubeMaps) {
 							map.setBlurVarianceX(mBlurVarianceX);
 							map.setBlurVarianceY(mBlurVarianceY);
 							map.setBlurWidthX(mBlurWidthX);
-							map.setBlurVarianceY(mBlurWidthY);
+							map.setBlurWidthY(mBlurWidthY);
 							map.Blur(gl);
 						}
 					}
@@ -302,6 +303,8 @@ public class Renderer {
 				
 
 					camera.setOrientation(orient);
+					
+					
 
 				}
 

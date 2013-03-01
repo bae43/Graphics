@@ -66,6 +66,11 @@ vec3 decode(vec2 v)
 	return n;
 }
 
+float getSchlickApprox(float theta, float N){
+		float t0 = pow((N-1.0)/(N+1.0),2.0);
+		return (t0 + (1.0-t0)*(pow(1.0-cos(theta),5.0)));
+}
+
 /**
  * Sample a cube map, based on a given index. If index = 1,
  * this means to sample the static cube map, otherwise we
@@ -118,18 +123,18 @@ vec3 mixEnvMapWithBaseColor(int cubeMapIndex, vec3 baseColor, vec3 position, vec
 	// TODO PA2: Implement the requirements of this function. 
 	// Hint: You can use the GLSL command mix to linearly blend between two colors.
 
-	samplerCube map;
-	if(cubeMapIndex == 0){
-		map = DynamicCubeMapTexture0;
-	}else if(cubeMapIndex == 1){
-		map = DynamicCubeMapTexture1;
-	}else if(cubeMapIndex == 2){
-		map = DynamicCubeMapTexture2;
-	}
-	vec3 env_color = vec3(1.0,0.3,0.0);
+vec3 view = normalize(position);
+	
+	float ndotv = dot(normal, view);
+	float theta = acos(-ndotv);
+	float schlick = getSchlickApprox(theta, n);
+	
+	vec3 reflected = CameraInverseRotation * normalize(2.0 * ndotv * normal - view);
+	vec3 sample = sampleCubeMap(reflected, cubeMapIndex);
+	
+	vec3 result = mix(baseColor, sample, 1.0 - schlick);
 
-	return mix(baseColor, env_color, 0.2); // .2 -> n
-
+	return result;
 
 }
 
@@ -146,7 +151,7 @@ float silhouetteStrength()
 	
 	vec2 c = gl_FragCoord.xy;
 	
-	float k = 0.3;
+	float k = 3.0;
 	
 	float g_max_R = 0.0, g_min_R = 1.0,
 		  g_max_G = 0.0, g_min_G = 1.0,
@@ -257,10 +262,7 @@ vec3 shadeBlinnPhong(vec3 diffuse, vec3 specular, float exponent, vec3 position,
 	return lightColor * attenuation * (diffuse * ndotl + specular * pow_ndoth);
 }
 
-float getSchlickApprox(float theta, float N){
-		float t0 = pow((N-1.0)/(N+1.0),2.0);
-		return (t0 + (1.0-t0)*(pow(1.0-cos(theta),5.0)));
-}
+
 
 /**
  * Performs Cook-Torrance shading on the passed fragment data (color, normal, etc.) for a single light.
@@ -281,7 +283,7 @@ float getSchlickApprox(float theta, float N){
 vec3 shadeCookTorrance(vec3 diffuse, vec3 specular, float m, float n, vec3 position, vec3 normal,
 	vec3 lightPosition, vec3 lightColor, vec3 lightAttenuation){
 
-		vec3 viewDirection = -normalize(position);
+vec3 viewDirection = -normalize(position);
 	vec3 lightDirection = normalize(lightPosition - position);
 	vec3 halfDirection = normalize(lightDirection + viewDirection);
 	vec3 finalColor = vec3(0.0);
@@ -295,7 +297,7 @@ vec3 shadeCookTorrance(vec3 diffuse, vec3 specular, float m, float n, vec3 posit
 	//half direction
 	vec3 h = normalize(l + v);	
 
-	// DONE PA1: Complete the Cook-Torrance shading function.
+	// TODO (DONE) PA1: Complete the Cook-Torrance shading function.
 	
 	float ndotv = max(0.0, dot(normal, v));
 	float ndoth = max(0.0, dot(normal, h));
@@ -327,7 +329,7 @@ vec3 shadeCookTorrance(vec3 diffuse, vec3 specular, float m, float n, vec3 posit
 
 	float fdg = max(f*d*g,0.0);
 	
-	vec3 spec = (ndotl == 0 || ndotv == 0) ? vec3(0.0) : (specular/M_PI)*(fdg)/(ndotl*ndotv);
+	vec3 spec = (ndotl == 0.0 || ndotv == 0.0) ? vec3(0.0) : (specular/M_PI)*(fdg)/(ndotl*ndotv);
 	
 	float r = length(lightPosition - position);
 	float attenuation = 1.0 / dot(lightAttenuation, vec3(1.0, r, r * r));
@@ -542,9 +544,14 @@ void main()
 	else if (materialID == COOKTORRANCE_MATERIAL_ID) {
 		for(int i = 0; i < NumLights; i++){
 			vec3 shade = shadeCookTorrance(diffuse,  materialParams2.xyz, materialParams1.y, materialParams1.z, position, normal,
-			LightPositions[i], LightColors[i], LightAttenuations[i]);
+				LightPositions[i], LightColors[i], LightAttenuations[i]);
 			result += shade;
 		}
+		int index = int(materialParams1.w);
+		if(index > 0) {
+			result = mixEnvMapWithBaseColor(index, result, position, normal, 14.0);
+		}
+		
 		gl_FragColor.rgb = result;
 		
 	}
@@ -573,6 +580,8 @@ void main()
 			result += shade;
 		}  
 		gl_FragColor.rgb = result;
+
+
 	}	else if(materialID == REFLECTION_MATERIAL_ID){
 	
 			result = shadeReflective( position, normal, materialParams1.w);	
@@ -580,13 +589,13 @@ void main()
 			gl_FragColor.rgb = result;
 	}
 
-
-
-	
 	// TODO PA2: (1) Add logic to handle the new reflection material; (2) Extend your Cook-Torrance
 	// model to support perfect mirror reflection from an environment map, given by its index. 	
 	else {
 		/* Unknown material, so just use the diffuse color. */
 		gl_FragColor.rgb = diffuse;
 	}
+
+	if(EnableToonShading)
+		gl_FragColor.rgb = mix(gl_FragColor.rgb,vec3(0.0),silhouetteStrength());
 }
