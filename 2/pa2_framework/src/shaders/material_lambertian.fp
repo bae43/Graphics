@@ -35,7 +35,7 @@ vec2 encode(vec3 n)
 
 void main()
 {
-	// TODO (DONE) PA1: Store diffuse color, position, encoded normal, material ID, and all other useful data in the g-buffer.
+	// DONE PA1: Store diffuse color, position, encoded normal, material ID, and all other useful data in the g-buffer.
 	
 	/* Encode the eyespace normal. */
 	vec2 enc = encode(normalize(EyespaceNormal));

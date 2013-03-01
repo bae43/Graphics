@@ -43,7 +43,7 @@ void main() {
 	//EyespaceBiTangent = gl_NormalMatrix * bitangent.xyz;
 
 	EyespaceTangent = normalize(gl_NormalMatrix * VertexTangent.xyz);
-	EyespaceBiTangent = normalize(VertexTangent.w * cross(EyespaceNormal,EyespaceTangent));
+	EyespaceBiTangent = normalize(cross(EyespaceNormal,EyespaceTangent));
 
 	TexCoord = vec2(gl_MultiTexCoord0);
 }

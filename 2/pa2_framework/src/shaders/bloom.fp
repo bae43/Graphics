@@ -17,7 +17,7 @@ uniform float KernelVariance;
 uniform int KernelWidth;
 uniform float Threshold;
 
-// TODO PA2: Implement the bloom shader.
+// DONE PA2: Implement the bloom shader.
 
 void main()
 {

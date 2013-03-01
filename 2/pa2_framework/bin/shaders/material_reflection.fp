@@ -29,8 +29,7 @@ vec2 encode(vec3 n)
 
 void main()
 {
-   	
-	// TODO PA2: Store the cube map index in the g-buffer.
+	// DONE PA2: Store the cube map index in the g-buffer.
 	
 	/* Encode the eyespace normal. */
 	vec2 enc = encode(normalize(EyespaceNormal));

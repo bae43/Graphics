@@ -91,7 +91,7 @@ public abstract class Mesh implements OpenGLResourceObject
 		q1.sub(p1, p0);
 		q2.sub(p2, p0);
 
-		/* TODO (DONE) PA1: Construct the Q matrix */
+		/* DONE PA1: Construct the Q matrix */
 		GMatrix matQ = new GMatrix(2, 3);
 		
 		matQ.setElement(0, 0, q1.x);
@@ -114,7 +114,7 @@ public abstract class Mesh implements OpenGLResourceObject
         	return;
         }
 
-		/* TODO (DONE) PA1 : Construct the inverse (s,t) matrix, and compute 
+		/* DONE PA1 : Construct the inverse (s,t) matrix, and compute 
 		 * tangent and bitangent vectors as explained on Lengyel's site. */ 
         GMatrix matInv = new GMatrix(2, 2);
         
@@ -201,7 +201,7 @@ public abstract class Mesh implements OpenGLResourceObject
 			bitangent.normalize();
 			
 			
-			/* TODO (DONE) PA1 : Orthogonalize and normalize (aka. create orthonormal basis), based on
+			/* DONE PA1 : Orthogonalize and normalize (aka. create orthonormal basis), based on
 			 * the current normal and tangent vectors, as explained on Lengyel's site. */   
 			Vector3f tangent_orth = new Vector3f();
 			
@@ -211,7 +211,7 @@ public abstract class Mesh implements OpenGLResourceObject
 			
 			tangent_orth.sub(tangent, norm_scale);
 			
-			/* TODO (DONE) PA1: Compute handedness of bitangent, as explained on Lengyel's site. */			
+			/* DONE PA1: Compute handedness of bitangent, as explained on Lengyel's site. */			
 			
 			Vector3f bitangent_orth = new Vector3f();
 			

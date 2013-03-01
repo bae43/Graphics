@@ -76,32 +76,28 @@ vec3 decode(vec2 v)
  * 
  * @return The color of the sample.
  */
-vec3 sampleCubeMap(vec3 r, int cubeMapIndex)
+vec3 sampleCubeMap(vec3 reflectedDirection, int cubeMapIndex)
 {
 	/* Transform the index, so that	valid values will be within 
 	   [-1, MAX_DYNAMIC_CUBE_MAPS - 1], where -1 means to sample 
 	   the static cube map, and values larger than 0 will be identified 
 	   with the dynamic cube maps. */
-
-   	cubeMapIndex = cubeMapIndex - 2;
-   	vec2 pos = vec2(0.5);//acos(-r.z), tan(2.0*r.y) ,tan(2.0*r.x));
+ 	   
+   	cubeMapIndex = cubeMapIndex - 2; 	   
  	   	
  	vec3 sampledColor = vec3(0.0);
- 	/*
-	if (cubeMapIndex == -1) {  Sample the static cube map 
-		return texture2DRect(StaticCubeMapTexture, pos).xyz;
+ 	
+	if (cubeMapIndex == -1) {
+		sampledColor = textureCube(StaticCubeMapTexture, reflectedDirection).xyz;
 	} else if (cubeMapIndex == 0) {
-		return texture2DRect(DynamicCubeMapTexture0, pos).xyz;
+		sampledColor = textureCube(DynamicCubeMapTexture0, reflectedDirection).xyz;
 	} else if (cubeMapIndex == 1) {
-		return texture2DRect(DynamicCubeMapTexture1, pos).xyz;
+		sampledColor = textureCube(DynamicCubeMapTexture1, reflectedDirection).xyz;
 	} else if (cubeMapIndex == 2) {
-		return texture2DRect(DynamicCubeMapTexture2, pos).xyz;
-	} else{
-		//orange (error checking)
-		return vec3(1.0,0.2,0.0);
-	}	 	 	 	*/
-
-	return vec3(1.0,0.2,0.0);
+		sampledColor = textureCube(DynamicCubeMapTexture2, reflectedDirection).xyz;
+	} 	 	 	 	
+	
+	return sampledColor;
 
 }
 
@@ -283,9 +279,9 @@ float getSchlickApprox(float theta, float N){
  * @return The shaded fragment color.
  */
 vec3 shadeCookTorrance(vec3 diffuse, vec3 specular, float m, float n, vec3 position, vec3 normal,
-	vec3 lightPosition, vec3 lightColor, vec3 lightAttenuation)
-{
-	vec3 viewDirection = -normalize(position);
+	vec3 lightPosition, vec3 lightColor, vec3 lightAttenuation){
+
+		vec3 viewDirection = -normalize(position);
 	vec3 lightDirection = normalize(lightPosition - position);
 	vec3 halfDirection = normalize(lightDirection + viewDirection);
 	vec3 finalColor = vec3(0.0);
@@ -299,11 +295,19 @@ vec3 shadeCookTorrance(vec3 diffuse, vec3 specular, float m, float n, vec3 posit
 	//half direction
 	vec3 h = normalize(l + v);	
 
-	// TODO (DONE) PA1: Complete the Cook-Torrance shading function.
+	// DONE PA1: Complete the Cook-Torrance shading function.
 	
-	float ndotv = max(0.0, dot(normal,  v));
-	float ndoth = max(0.0, dot(normal,  h));
+	float ndotv = max(0.0, dot(normal, v));
+	float ndoth = max(0.0, dot(normal, h));
 	float ndotl = max(0.0, dot(normal, l));
+	
+	if(EnableToonShading){
+		if(ndotl < 0.1)	ndotl = 0.0;
+		else			ndotl = 1.0;
+		
+		if(ndoth < 0.9) ndoth = 0.0;
+		else			ndoth = 1.0;
+	}
 	
 	//fresnal equation
 	float theta = acos(ndotl);
@@ -320,10 +324,10 @@ vec3 shadeCookTorrance(vec3 diffuse, vec3 specular, float m, float n, vec3 posit
 	float temp = 2.0*ndoth/dot(v,h);
 	float g = min(temp*ndotv,temp*ndotl);
 	g = min(1.0,g);
+
+	float fdg = max(f*d*g,0.0);
 	
-	
-	vec3 spec = (specular/M_PI)*(f*d*g)/(ndotl*ndotv);
-	
+	vec3 spec = (ndotl == 0 || ndotv == 0) ? vec3(0.0) : (specular/M_PI)*(fdg)/(ndotl*ndotv);
 	
 	float r = length(lightPosition - position);
 	float attenuation = 1.0 / dot(lightAttenuation, vec3(1.0, r, r * r));
@@ -331,14 +335,7 @@ vec3 shadeCookTorrance(vec3 diffuse, vec3 specular, float m, float n, vec3 posit
 	finalColor = lightColor * attenuation * ndotl * (diffuse + spec);
 	
 	return finalColor;
-	
-	
-	// TODO PA2: Update this function to threshold its n.l and n.h values if toon shading is enabled.	
-	
-	r = length(lightPosition - position);
-	attenuation = 1.0 / dot(lightAttenuation, vec3(1.0, r, r * r));
-	
-	return attenuation * finalColor;
+
 }
 
 /**
@@ -367,7 +364,7 @@ vec3 shadeAnisotropicWard(vec3 diffuse, vec3 specular, float alphaX, float alpha
 	
 	vec3 finalColor = vec3(0.0);
 
-	// TODO (DONE) PA1: Complete the Anisotropic Ward shading function.
+	// DONE PA1: Complete the Anisotropic Ward shading function.
 	float ndotv = max(0.0, dot(normal,  viewDirection));
 	float ndoth = max(0.0, dot(normal,  halfDirection));
 	float ndotl = max(0.0, dot(normal, lightDirection));
@@ -418,7 +415,7 @@ vec3 shadeIsotropicWard(vec3 diffuse, vec3 specular, float alpha, vec3 position,
 	
 	vec3 finalColor = vec3(0.0);
 
-	// TODO (DONE) PA1: Complete the Isotropic Ward shading function.
+	// DONE PA1: Complete the Isotropic Ward shading function.
 	float ndotv = max(0.0, dot(normal,  viewDirection));
 	float ndoth = max(0.0, dot(normal,  halfDirection));
 	float ndotl = max(0.0, dot(normal, lightDirection));
@@ -463,9 +460,11 @@ vec3 shadeIsotropicWard(vec3 diffuse, vec3 specular, float alpha, vec3 position,
 vec3 shadeReflective(vec3 position, vec3 normal, int cubeMapIndex)
 {	
 	// TODO PA2: Implement a perfect mirror material using environmnet map lighting.
+	vec3 view = normalize(-position);
+	vec3 reflected =  reflect(view,normal);//2*(dot(normal,view))*normal-view;
 
-	float r;
-	vec2 uv_coord;
+	return sampleCubeMap(CameraInverseRotation * reflected, cubeMapIndex);
+/*	vec2 uv_coord;
 	if(normal.x > normal.y){
 		if(normal.z > normal.x){
 			//z max
@@ -490,9 +489,7 @@ vec3 shadeReflective(vec3 position, vec3 normal, int cubeMapIndex)
 	}
 	
 	uv_coord = normalize(uv_coord);
-
-	sampleCubeMap(r, cubeMapIndex);
-	return vec3(0.0);
+*/
 }
 
 
@@ -525,7 +522,7 @@ void main()
 		gl_FragColor.rgb = diffuse; 
 	}
 	
-	// TODO (DONE) PA1: Add logic to handle all other material IDs. Remember to loop over all NumLights.
+	// DONE PA1: Add logic to handle all other material IDs. Remember to loop over all NumLights.
 	else if(materialID == BLINNPHONG_MATERIAL_ID) {
 		for(int i = 0; i < NumLights; i++){
 			vec3 shade = shadeBlinnPhong(diffuse, materialParams2.rgb, materialParams2.a, position, normal, LightPositions[i], LightColors[i], LightAttenuations[i]);
@@ -578,9 +575,9 @@ void main()
 		gl_FragColor.rgb = result;
 	}	else if(materialID == REFLECTION_MATERIAL_ID){
 	
-		result = shadeReflective( position, normal, 1);	
-		
-		gl_FragColor.rgb = result;
+			result = shadeReflective( position, normal, materialParams1.w);	
+			
+			gl_FragColor.rgb = result;
 	}
 
 

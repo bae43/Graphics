@@ -49,8 +49,8 @@ vec2 encode(vec3 n)
 
 void main()
 {
-	//TODO (DONE) PA1: Copy over old code (deleted the original TODO)
-	
+	//DONE PA1: Copy over old code 
+		
 	 vec3 DColor = DiffuseColor;
 	 vec3 SColor = SpecularColor;
 	 float AX = AlphaX;
