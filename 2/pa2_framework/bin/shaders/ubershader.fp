@@ -281,6 +281,11 @@ float getSchlickApprox(float theta, float N){
 vec3 shadeCookTorrance(vec3 diffuse, vec3 specular, float m, float n, vec3 position, vec3 normal,
 	vec3 lightPosition, vec3 lightColor, vec3 lightAttenuation){
 
+		vec3 viewDirection = -normalize(position);
+	vec3 lightDirection = normalize(lightPosition - position);
+	vec3 halfDirection = normalize(lightDirection + viewDirection);
+	vec3 finalColor = vec3(0.0);
+
 	//view direction
 	vec3 v = -normalize(position);
 	
@@ -292,9 +297,17 @@ vec3 shadeCookTorrance(vec3 diffuse, vec3 specular, float m, float n, vec3 posit
 
 	// DONE PA1: Complete the Cook-Torrance shading function.
 	
-	float ndotv = max(0.0, dot(normal,  v));
-	float ndoth = max(0.0, dot(normal,  h));
+	float ndotv = max(0.0, dot(normal, v));
+	float ndoth = max(0.0, dot(normal, h));
 	float ndotl = max(0.0, dot(normal, l));
+	
+	if(EnableToonShading){
+		if(ndotl < 0.1)	ndotl = 0.0;
+		else			ndotl = 1.0;
+		
+		if(ndoth < 0.9) ndoth = 0.0;
+		else			ndoth = 1.0;
+	}
 	
 	//fresnal equation
 	float theta = acos(ndotl);
@@ -302,27 +315,26 @@ vec3 shadeCookTorrance(vec3 diffuse, vec3 specular, float m, float n, vec3 posit
 	
 	// facet distribution
 	float a = acos(dot(normal,h));
-	float e_exp = -pow((a/m),2.0);
+	float e_exp = -pow((tan(a)/m),2.0);
 	float e_term = exp(e_exp);
 	float m_term = 4.0*m*m*pow(cos(a),4.0);
 	float d = e_term/m_term;
 	
 	// masking/shadowing
-	float temp = 2.0*dot(n,h)/dot(v,h);
-	float g = min(temp*dot(n,v),temp*dot(n,l));
+	float temp = 2.0*ndoth/dot(v,h);
+	float g = min(temp*ndotv,temp*ndotl);
 	g = min(1.0,g);
 
-	//return vec3(f,d,g);
+	float fdg = max(f*d*g,0.0);
 	
-	vec3 spec = (specular/M_PI)*(f*d*g)/(ndotl*ndotv);
-	
+	vec3 spec = (ndotl == 0 || ndotv == 0) ? vec3(0.0) : (specular/M_PI)*(fdg)/(ndotl*ndotv);
 	
 	float r = length(lightPosition - position);
 	float attenuation = 1.0 / dot(lightAttenuation, vec3(1.0, r, r * r));
 	
-	return lightColor * attenuation * ndotl * (diffuse + spec);
-
+	finalColor = lightColor * attenuation * ndotl * (diffuse + spec);
 	
+	return finalColor;
 
 }
 

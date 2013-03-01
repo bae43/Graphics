@@ -32,12 +32,28 @@ float weight(float d){
 } 
 
 void main()
-{	vec3 color = vec3(0.0);
-
-	for(int i = -KernelWidth; i<KernelWidth; i++){
+{
+	if(Axis != 0){Axis = 1;}
+	//for(int i = -KernelWidth; i<KernelWidth; i++){
 	//	vec3 cur_color = texture2D(SourceTexture, gl_FragCoord.xy+vec2(float(i))).rbg;
 	//	color += weight(float(i)) * cur_color;
-	}
+	//}
 
-    gl_FragColor = vec4(color,1.0);
+   // gl_FragColor = vec4(color,1.0);
+
+   float j = 0.0;
+    vec4 color = texture2D(SourceTexture, gl_TexCoord[0].xy);
+    
+    float h = (float(KernelWidth) - 1.0);
+    for(float i = -h/2; i <= h/2; i++){
+
+    	
+			vec4 t = texture2D(SourceTexture, gl_TexCoord[0].xy + vec2(i*(1.0-Axis)/TextureSize, i * Axis/TextureSize));
+
+			color += t * exp(-(i * i + j * j) / (2.0 * KernelVariance));
+
+    }
+    color /= h;
+    
+    gl_FragColor = color;
 }
