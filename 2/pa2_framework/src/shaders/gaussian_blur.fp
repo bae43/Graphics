@@ -57,10 +57,7 @@ void main()
 			tex = texture2D(SourceTexture, gl_TexCoord[0].xy + vec2(0.0, i));
     	}
 
-    	color = color + tex * exp(-(i * i) / (2.0 * KernelVariance));
-
-
-
+    	color += tex * exp(-(i * i) / (2.0 * KernelVariance));
     }
 
 //color /= KernelWidth *2.0;
