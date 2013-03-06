@@ -79,7 +79,8 @@ float DepthToLinear(float value)
 float getShadowVal(vec4 shadowCoord, vec2 offset) 
 {
 	// TODO PA3: Implement this function (see above).
-	return 1.0; //texture2D(ShadowMap, shadowCoord.xy + offset);
+	shadowCoord = shadowCoord / shadowCoord.w;
+	return shadowCoord.z > texture2D(ShadowMap, shadowCoord.xy + offset).x + bias? 0.0 : 1.0;
 }
 
 /** Calculates regular shadow map algorithm shadow strength
@@ -89,7 +90,7 @@ float getShadowVal(vec4 shadowCoord, vec2 offset)
  float getDefaultShadowMapVal(vec4 shadowCoord)
  {
  	// TODO PA3: Implement this function (see above).
-	return 1.0;
+	return getShadowVal(shadowCoord, vec2(0.0)) ;
  }
  
 /** Calculates PCF shadow map algorithm shadow strength
@@ -99,7 +100,14 @@ float getShadowVal(vec4 shadowCoord, vec2 offset)
  float getPCFShadowMapVal(vec4 shadowCoord)
  {
  	// TODO PA3: Implement this function (see above).
- 	return 1.0;
+ 	float M = 0.0;
+ 	float N = pow(ShadowSampleWidth * 2.0 + 1.0, 2.0);
+ 	for (float i = -ShadowSampleWidth; i <= ShadowSampleWidth; i = i + 1.0) {
+ 	    for (float j = -ShadowSampleWidth; j <= ShadowSampleWidth; j = j + 1.0) {
+ 	        M += getShadowVal(shadowCoord, vec2(i / ShadowMapWidth, j / ShadowMapHeight)); 
+ 	    }
+ 	}
+ 	return M/N;
  }
  
  /** Calculates PCSS shadow map algorithm shadow strength
@@ -124,7 +132,8 @@ float getShadowVal(vec4 shadowCoord, vec2 offset)
 float getShadowStrength(vec3 position) {
 	// TODO PA3: Transform position to ShadowCoord
 	vec4 ShadowCoord = vec4(position, 1.0);
-	ShadowCoord = LightMatrix * InverseViewMatrix * ShadowCoord;
+	mat4 B = mat4(0.5, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.5, 0.5, 0.5, 1.0);
+	ShadowCoord = B * LightMatrix * InverseViewMatrix * ShadowCoord;
 	
 	if (ShadowMode == DEFAULT_SHADOW_MAP)
 	{

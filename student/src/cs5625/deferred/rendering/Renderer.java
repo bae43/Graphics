@@ -449,15 +449,16 @@ public class Renderer
 			// TODO PA3: Set the LightMatrix and InverseViewMatrix uniforms.
 			
 			/* Set LightMatrix, which sends points from world space into (light) camera clip coordinates space. */
-			Matrix4f mat = camera.getProjectionMatrix(mViewportWidth, mViewportHeight);
-			mat.mul(camera.getViewMatrix());
-			float[] fbuffer = {mat.m00, mat.m01, mat.m02,mat.m03, mat.m10, mat.m11, mat.m12, mat.m13, mat.m20, mat.m21, mat.m22, mat.m23};
-			gl.glUniformMatrix4fv(mLightMatrixUniformLocation, 1, false, fbuffer, 0);
+			Matrix4f mat = shadowCamera.getProjectionMatrix(mViewportWidth, mViewportHeight);
+			mat.mul(mat, shadowCamera.getViewMatrix());
+			//mat.mul(camera.getViewMatrix(), mat);
+			float[] fbuffer = {mat.m00, mat.m01, mat.m02,mat.m03, mat.m10, mat.m11, mat.m12, mat.m13, mat.m20, mat.m21, mat.m22, mat.m23, mat.m30, mat.m31, mat.m32, mat.m33};
+			gl.glUniformMatrix4fv(mLightMatrixUniformLocation, 1, true, fbuffer, 0);
 			
 			/* Set InverseViewMatrix, which sends points from the (eye) camera local space into world space. */
 			Matrix4f m = camera.getWorldSpaceTransformationMatrix4f();
-			float[] f = {m.m00, m.m01, m.m02,m.m03, m.m10, m.m11, m.m12, m.m13, m.m20, m.m21, m.m22, m.m23};
-			gl.glUniformMatrix4fv(mInverseViewMatrixUniformLocation, 1, false, f, 0);
+			float[] f = {m.m00, m.m01, m.m02,m.m03, m.m10, m.m11, m.m12, m.m13, m.m20, m.m21, m.m22, m.m23, m.m30, m.m31, m.m32, m.m33};
+			gl.glUniformMatrix4fv(mInverseViewMatrixUniformLocation, 1, true, f, 0);
 			
 			
 			
